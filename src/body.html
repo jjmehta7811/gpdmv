@@ -201,7 +201,17 @@
   var MON3 = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
   var DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 
-  var CAL_URL = "https://claude.ai/artifact/AQP5M141kVFHpAvxk4ZWAs";
+  // The address people should save and share. On gpdmv.com that is the site
+  // itself (always the bare domain, never the www or preview spelling); on
+  // claude.ai it is the artifact link.
+  var CAL_URL = (function () {
+    if (typeof window.GPDMV_API !== "string" || !window.GPDMV_API) {
+      return "https://claude.ai/artifact/AQP5M141kVFHpAvxk4ZWAs";
+    }
+    var host = (window.location.hostname || "").replace(/^www\./i, "");
+    // A preview build (*.pages.dev) keeps its own address so testing stays honest.
+    return "https://" + (host || "gpdmv.com");
+  })();
 
   var $ = function (id) { return document.getElementById(id); };
 

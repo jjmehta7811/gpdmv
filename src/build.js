@@ -30,8 +30,17 @@ const live = readIf("live-events.json");
 const livePool = readIf("live-pool.json");
 const history = readIf("live-history.json") || [];
 
-const seed = live || JSON.parse(fs.readFileSync(path.join(DIR, "events.json"), "utf8"));
-const flyers = livePool || JSON.parse(fs.readFileSync(path.join(DIR, "flyers.json"), "utf8"));
+// The web build ships with no data (it fetches from /api), so seed files are
+// optional there; the artifact build needs them.
+function readSeed(file) {
+  const p = path.join(DIR, file);
+  if (fs.existsSync(p)) return JSON.parse(fs.readFileSync(p, "utf8"));
+  if (WEB) return null;
+  throw new Error("Missing " + file + " — needed for the artifact build.");
+}
+
+const seed = live || readSeed("events.json") || [];
+const flyers = livePool || readSeed("flyers.json") || {};
 seed.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 
 const slim = seed.map((ev) => {
