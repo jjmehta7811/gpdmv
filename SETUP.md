@@ -35,12 +35,21 @@ protected by a password only you know.
 
 ## Step 3 — Create the site
 
-1. Left sidebar: **Compute (Workers) → Workers & Pages**.
-2. Click **Create** → **Pages** tab → **Upload assets**.
-3. Project name: `gpdmv`
-4. Drag in **this whole folder** (`index.html` and the `functions` folder
-   together — keep the folder structure).
-5. Click **Deploy site**.
+Cloudflare's "Create an app" screen now pushes you toward Workers. You want
+**Pages**, which is further down.
+
+1. Left sidebar: **Compute (Workers) → Workers & Pages** → **Create**.
+2. At the very bottom of that page, click the small link
+   **"Continue to Pages"** (next to *Need to use the legacy Pages workflow?*).
+3. **Connect to Git** → pick your `gpdmv-calendar` repository.
+4. Build settings:
+   - Framework preset: **None**
+   - Build command: *(leave empty)*
+   - Build output directory: `public`
+5. Click **Save and Deploy**.
+
+If you are not using GitHub, choose **Upload assets** on that same Pages
+screen instead and drag in the repo contents, keeping the folder structure.
 
 ## Step 4 — Set the password and connect the storage
 
