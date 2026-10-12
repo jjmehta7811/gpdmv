@@ -62,7 +62,7 @@ history.forEach((s) => {
 
 const enc = (v) => JSON.stringify(v).replace(/</g, "\\u003c");
 
-const BUILD = process.env.BUILD || "44";
+const BUILD = process.env.BUILD || "50";
 
 function fill(src, data, poolData, hist) {
   return src

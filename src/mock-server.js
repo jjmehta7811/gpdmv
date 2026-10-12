@@ -69,6 +69,17 @@ http.createServer(async (req, res) => {
     return send(res, 200, { ok: true, events: store.events.length });
   }
 
+  if (url === "/calendar.ics") {
+    // Run the real function so the feed is tested, not a stand-in.
+    const mod = await import("../functions/calendar.ics.js");
+    const env = { CALENDAR: { get: async () => JSON.stringify(store) } };
+    const proxied = new Request("http://localhost" + req.url);
+    const out = await mod.onRequestGet({ request: proxied, env });
+    const body = await out.text();
+    res.writeHead(out.status, { "Content-Type": out.headers.get("Content-Type") });
+    return res.end(body);
+  }
+
   // Mirror the _redirects rule so local testing matches the deployed site.
   const asIndex = (url === "/" || url === "/calendar" || url === "/calendar/");
   const file = path.join(DIR, asIndex ? "index.html" : url.replace(/^\//, ""));

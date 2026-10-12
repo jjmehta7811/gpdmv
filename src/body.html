@@ -16,6 +16,12 @@
       </svg>
       Bookmark
     </button>
+    <button type="button" class="sub-btn" id="sub-cal">
+      <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M7 2v2H5a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2V2h-2v2H9V2H7Zm12 7v10H5V9h14Zm-8 2v3H8v2h3v3h2v-3h3v-2h-3v-3h-2Z"/>
+      </svg>
+      Subscribe
+    </button>
     <a class="join" href="https://chat.whatsapp.com/GNPv1DQ132X3uj1wF5QhAk" target="_blank" rel="noopener noreferrer">
       <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false">
         <path fill="currentColor" d="M12 3.2c-4.8 0-8.7 3.6-8.7 8.1 0 1.6.5 3.1 1.4 4.3L3.3 20.8l5.4-1.4a9.4 9.4 0 0 0 3.3.6c4.8 0 8.7-3.6 8.7-8.1S16.8 3.2 12 3.2Zm0 14.6c-1.1 0-2.1-.2-3-.6l-.4-.2-3 .8.8-2.8-.2-.4a6.5 6.5 0 0 1-1.2-3.7c0-3.6 3.2-6.5 7-6.5s7 2.9 7 6.5-3.1 6.9-7 6.9Z"/>
@@ -28,6 +34,36 @@
   <nav class="sitenav" aria-label="Sections">
     <a class="sitetab is-on" href="/calendar" aria-current="page">Calendar</a>
   </nav>
+
+  <div class="drawer" id="sub-drawer" hidden>
+    <div class="sheet save-sheet" role="dialog" aria-modal="true" aria-labelledby="sub-title">
+      <div class="sheet-head">
+        <h2 id="sub-title">Add GPDMV events to your calendar</h2>
+        <span class="spacer" style="flex:1"></span>
+        <button class="mini" id="sub-close">Close</button>
+      </div>
+
+      <p class="sheet-note">Subscribe once and GPDMV events appear in your own phone calendar, beside everything else. Every event added later arrives on its own — nothing to check, nothing to install.</p>
+
+      <div class="sub-pick">
+        <label for="sub-cat">What would you like?</label>
+        <select id="sub-cat"></select>
+      </div>
+
+      <div class="sub-go">
+        <a class="btn primary" id="sub-link" href="#">Subscribe</a>
+        <button type="button" class="btn quiet" id="sub-copy">Copy link</button>
+      </div>
+      <p class="status" id="sub-status"></p>
+
+      <div class="tabs" id="sub-tabs" role="tablist">
+        <button type="button" class="tab" data-dev="ios" role="tab">iPhone / iPad</button>
+        <button type="button" class="tab" data-dev="android" role="tab">Android</button>
+        <button type="button" class="tab" data-dev="desktop" role="tab">Computer</button>
+      </div>
+      <div class="how" id="sub-how"></div>
+    </div>
+  </div>
 
   <div class="drawer" id="save-drawer" hidden>
     <div class="sheet save-sheet" role="dialog" aria-modal="true" aria-labelledby="save-title">
@@ -105,6 +141,19 @@
     </form>
 
     <p class="sheet-note">Paste the WhatsApp announcement straight into Details — line breaks are kept exactly as you paste them.</p>
+
+    <section class="vh" id="retag" hidden>
+      <button type="button" class="vh-toggle" id="retag-toggle" aria-expanded="true">
+        <span>Tidy up categories</span>
+        <span class="vh-count" id="retag-count"></span>
+      </button>
+      <div class="vh-body" id="retag-body">
+        <p class="sheet-note">These events were added under the old category names. Each one below has a suggestion — change any you disagree with, then save them together. The calendar as it is now is kept as a version first, so this can be undone.</p>
+        <ul class="vh-list retag-list" id="retag-list"></ul>
+        <button type="button" class="btn primary" id="retag-save">Save these categories</button>
+        <p class="status" id="retag-status"></p>
+      </div>
+    </section>
 
     <ul class="manage-list" id="manage-list"></ul>
 
@@ -202,15 +251,17 @@
   "use strict";
 
   var CATS = {
-    garba:   { label: "Garba & Raas",   c: "--marigold", w: "--marigold-wash" },
-    puja:    { label: "Puja & Aarti",   c: "--madder",   w: "--madder-wash"   },
-    social:  { label: "Social",         c: "--teal",     w: "--teal-wash"     },
-    sports:  { label: "Sports",         c: "--indigo",   w: "--indigo-wash"   },
-    youth:   { label: "Youth & Kids",   c: "--plum",     w: "--plum-wash"     },
-    shopping:{ label: "Shopping & Expo", c: "--rose",    w: "--rose-wash"     },
-    community:{ label: "Community",     c: "--moss",     w: "--moss-wash"     },
-    meeting: { label: "Meeting",        c: "--slate",    w: "--slate-wash"    }
+    garba:    { label: "Garba & Raas",       c: "--marigold", w: "--marigold-wash" },
+    temple:   { label: "Temple & Spiritual", c: "--madder",   w: "--madder-wash"   },
+    shopping: { label: "Shopping & Expo",    c: "--rose",     w: "--rose-wash"     },
+    community:{ label: "Community & Culture", c: "--moss",    w: "--moss-wash"     },
+    food:     { label: "Food & Dining",      c: "--teal",     w: "--teal-wash"     },
+    youth:    { label: "Youth & Kids",       c: "--plum",     w: "--plum-wash"     },
+    meetup:   { label: "Meetups",            c: "--slate",    w: "--slate-wash"    }
   };
+
+  // Events saved under the old scheme still render correctly.
+  var CAT_ALIAS = { puja: "temple", social: "community", meeting: "meetup", sports: "meetup" };
   var CAT_KEYS = Object.keys(CATS);
   var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   var MON3 = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
@@ -284,7 +335,9 @@
     var t = new Date();
     return iso(t.getFullYear(), t.getMonth(), t.getDate());
   }
-  function cat(k) { return CATS[k] || CATS.meeting; }
+  // The key an event's category belongs under now, old names included.
+  function catKey(k) { return CATS[k] ? k : (CAT_ALIAS[k] || "community"); }
+  function cat(k) { return CATS[catKey(k)]; }
   function catStyle(k) {
     var c = cat(k);
     return "--cat:var(" + c.c + ");--cat-wash:var(" + c.w + ")";
@@ -391,7 +444,7 @@
         dots = '<div class="dots">';
         for (var j = 0; j < Math.min(list.length, 4); j++) {
           var c = cat(list[j].category);
-          used[list[j].category in CATS ? list[j].category : "meeting"] = true;
+          used[catKey(list[j].category)] = true;
           dots += '<span class="dot" style="background:var(' + c.c + ')"></span>';
         }
         dots += "</div>";
@@ -406,7 +459,8 @@
     var legend = "";
     CAT_KEYS.forEach(function (k) {
       if (!used[k]) return;
-      legend += '<span><span class="dot" style="background:var(' + CATS[k].c + ')"></span>' + CATS[k].label + "</span>";
+      var lc = cat(k);
+      legend += '<span><span class="dot" style="background:var(' + lc.c + ')"></span>' + lc.label + "</span>";
     });
     $("legend").innerHTML = legend || '<span>No events this month.</span>';
   }
@@ -679,6 +733,51 @@
     }).join("") : '<li style="border-left-color:var(--line)"><span class="mn"><b>No events yet</b><span>Add the first one below.</span></span></li>';
   }
 
+  /* ---------- one-time category tidy-up ---------- */
+  // Events added before the categories were redrawn still carry the old
+  // names. This proposes where each one belongs now and lets the suggestion
+  // be corrected before anything is saved.
+  var RETAG_HINTS = [
+    [/garba|raas|dandiya|ramzat|navratri|ratri|kirtidan/i, "garba"],
+    [/temple|mandir|puja|pujan|aarti|katha|havan|janmashtami|rajyoga|haveli|vilas|satsang|bhajan/i, "temple"],
+    [/expo|showcase|shopping|boutique|jewel|saree|sari|collection|trunk show/i, "shopping"],
+    [/restaurant|dinner|chaat|food|tiffin|thali|cafe|café|brunch|lunch/i, "food"],
+    [/kids|children|child|youth|teen|workshop|camp/i, "youth"],
+    [/meetup|mingle|chai|get-?together|picnic|walk/i, "meetup"]
+  ];
+
+  function suggestCat(ev) {
+    var hay = [ev.title, ev.venue, ev.details].filter(Boolean).join(" ");
+    for (var i = 0; i < RETAG_HINTS.length; i++) {
+      if (RETAG_HINTS[i][0].test(hay)) return RETAG_HINTS[i][1];
+    }
+    return catKey(ev.category);
+  }
+
+  function renderRetag() {
+    var stale = events.filter(function (e) { return !CATS[e.category]; });
+    var sec = $("retag");
+    if (!CAN_EDIT || !stale.length) { sec.hidden = true; return; }
+
+    sec.hidden = false;
+    $("retag-count").textContent = stale.length + (stale.length === 1 ? " event" : " events");
+    $("retag-status").textContent = "";
+    $("retag-list").innerHTML = stale
+      .sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; })
+      .map(function (ev) {
+        var pick = suggestCat(ev);
+        return '<li style="' + catStyle(pick) + '">' +
+          '<span class="mn"><b>' + esc(ev.title) + "</b><span>" + esc(ev.date) +
+            " · was “" + esc(ev.category || "none") + "”</span></span>" +
+          '<select class="retag-pick" data-id="' + esc(ev.id) + '">' +
+            CAT_KEYS.map(function (k) {
+              return '<option value="' + k + '"' + (k === pick ? " selected" : "") +
+                ">" + esc(CATS[k].label) + "</option>";
+            }).join("") +
+          "</select></li>";
+      }).join("");
+  }
+
   function stamp(ts) {
     var d = new Date(ts);
     if (isNaN(d.getTime())) return "";
@@ -740,6 +839,114 @@
       return copy;
     });
     save(restored, "Restored the version from " + stamp(snap.ts) + ".", "Before restoring an earlier version");
+  });
+
+  /* ---------- calendar subscription ---------- */
+  // webcal:// makes a phone treat the link as a subscription rather than a
+  // one-off download, which is the difference between "stays current" and
+  // "a copy that goes stale".
+  var SUB_HOW = {
+    ios: {
+      steps: [
+        "Tap <b>Subscribe</b> above.",
+        "iPhone asks <b>Subscribe to this calendar?</b> \u2014 tap <b>Subscribe</b>, then <b>Done</b>.",
+        "GPDMV events now appear in your Calendar app."
+      ],
+      tip: "Nothing happened? Copy the link, then go to Settings \u203a Apps \u203a Calendar \u203a Accounts \u203a Add Account \u203a Other \u203a Add Subscribed Calendar and paste it."
+    },
+    android: {
+      steps: [
+        "Tap <b>Copy link</b> above.",
+        "Open <b>calendar.google.com</b> in a browser (the Google Calendar app cannot add subscriptions itself).",
+        "Left side: next to <b>Other calendars</b> tap <b>+</b> \u203a <b>From URL</b>, paste, then <b>Add calendar</b>.",
+        "The events appear in your Google Calendar app within a few minutes."
+      ],
+      tip: "It has to be done once in a browser, but after that your phone keeps it up to date by itself."
+    },
+    desktop: {
+      steps: [
+        "<b>Google Calendar:</b> next to <b>Other calendars</b> click <b>+</b> \u203a <b>From URL</b> and paste the link.",
+        "<b>Outlook:</b> Add calendar \u203a Subscribe from web \u203a paste the link.",
+        "<b>Apple Calendar:</b> File \u203a New Calendar Subscription \u203a paste the link."
+      ],
+      tip: "Use Copy link above, then paste it wherever your calendar asks for a web address."
+    }
+  };
+
+  function subBase() {
+    var host = (window.location.hostname || "gpdmv.com").replace(/^www\./i, "");
+    return host + "/calendar.ics";
+  }
+
+  function subUrl(cat) {
+    var q = cat ? "?cat=" + encodeURIComponent(cat) : "";
+    return { web: "https://" + subBase() + q, cal: "webcal://" + subBase() + q };
+  }
+
+  function showSubHow(dev) {
+    var h = SUB_HOW[dev] || SUB_HOW.desktop;
+    var tabs = $("sub-tabs").querySelectorAll(".tab");
+    for (var i = 0; i < tabs.length; i++) {
+      tabs[i].setAttribute("aria-selected", tabs[i].getAttribute("data-dev") === dev ? "true" : "false");
+    }
+    $("sub-how").innerHTML = "<ol><li>" + h.steps.join("</li><li>") + "</li></ol>" +
+      '<p class="tip">' + h.tip + "</p>";
+  }
+
+  function syncSubLink() {
+    var u = subUrl($("sub-cat").value);
+    $("sub-link").setAttribute("href", u.cal);
+    $("sub-link").setAttribute("data-web", u.web);
+  }
+
+  function openSub() {
+    var sel = $("sub-cat");
+    if (!sel.options.length) {
+      var opt = document.createElement("option");
+      opt.value = ""; opt.textContent = "All GPDMV events";
+      sel.appendChild(opt);
+      CAT_KEYS.forEach(function (k) {
+        var o = document.createElement("option");
+        o.value = k; o.textContent = CATS[k].label + " only";
+        sel.appendChild(o);
+      });
+    }
+    syncSubLink();
+    showSubHow(guessDevice());
+    $("sub-status").textContent = "";
+    $("sub-status").className = "status";
+    $("sub-drawer").hidden = false;
+  }
+
+  $("sub-cal").addEventListener("click", openSub);
+  $("sub-close").addEventListener("click", function () { $("sub-drawer").hidden = true; });
+  $("sub-drawer").addEventListener("click", function (e) {
+    if (e.target === $("sub-drawer")) $("sub-drawer").hidden = true;
+  });
+  $("sub-cat").addEventListener("change", syncSubLink);
+  $("sub-tabs").addEventListener("click", function (e) {
+    var t = e.target.closest("[data-dev]");
+    if (t) showSubHow(t.getAttribute("data-dev"));
+  });
+
+  $("sub-copy").addEventListener("click", function () {
+    var link = $("sub-link").getAttribute("data-web");
+    var note = $("sub-status");
+    function ok() {
+      note.textContent = "Link copied. Paste it into your calendar app.";
+      note.className = "status ok";
+    }
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(link).then(ok, function () {
+          note.textContent = link;
+          note.className = "status";
+        });
+        return;
+      }
+    } catch (e) { /* fall through */ }
+    note.textContent = link;
+    note.className = "status";
   });
 
   /* ---------- save / bookmark helper ---------- */
@@ -879,7 +1086,7 @@
 
   function fillForm(ev) {
     $("f-title").value = ev ? ev.title || "" : "";
-    $("f-cat").value = ev && CATS[ev.category] ? ev.category : "social";
+    $("f-cat").value = ev ? catKey(ev.category) : "community";
     $("f-time").value = ev ? ev.time || "" : "";
     $("f-date").value = ev ? ev.date || "" : selected;
     $("f-end").value = ev ? ev.endDate || "" : "";
@@ -901,8 +1108,36 @@
   syncEditorAccess();
   window.addEventListener("hashchange", syncEditorAccess);
 
+  $("retag-toggle").addEventListener("click", function () {
+    var open = $("retag-toggle").getAttribute("aria-expanded") === "true";
+    $("retag-toggle").setAttribute("aria-expanded", open ? "false" : "true");
+    $("retag-body").hidden = open;
+  });
+
+  $("retag-list").addEventListener("change", function (e) {
+    var sel = e.target.closest(".retag-pick");
+    if (sel) sel.parentNode.setAttribute("style", catStyle(sel.value));
+  });
+
+  $("retag-save").addEventListener("click", function () {
+    var nodes = $("retag-list").querySelectorAll(".retag-pick");
+    var picks = {};
+    for (var i = 0; i < nodes.length; i++) picks[nodes[i].getAttribute("data-id")] = nodes[i].value;
+    var n = Object.keys(picks).length;
+    if (!n) return;
+    var next = events.map(function (e) {
+      if (!picks[e.id]) return e;
+      var copy = {};
+      Object.keys(e).forEach(function (k) { copy[k] = e[k]; });
+      copy.category = picks[e.id];
+      return copy;
+    });
+    save(next, n === 1 ? "One category updated." : n + " categories updated.", "Category tidy-up");
+  });
+
   $("manage").addEventListener("click", function () {
     renderManageList();
+    renderRetag();
     renderHistory();
     renderActivity();
     $("vh-body").hidden = false;
@@ -1074,7 +1309,7 @@
         next.forEach(function (e) { if (e.flyer) pool[e.id] = e.flyer; });
         events = next;
         history = nextHist;
-        renderAll(); renderManageList(); renderHistory(); fillForm(null);
+        renderAll(); renderManageList(); renderRetag(); renderHistory(); fillForm(null);
         setStatus(okMsg + " Everyone with the link sees it now.", "ok");
         btn.disabled = false;
       })
@@ -1116,6 +1351,7 @@
           CAN_EDIT = true;
           $("login-row").hidden = true;
           apiLoad().then(function (d) { AUDIT = d.audit || []; renderActivity(); }).catch(function () {});
+          renderRetag();
           setStatus("Signed in. You can edit the calendar now.", "ok");
         } else {
           setStatus("That password is not right.", "err");
@@ -1137,6 +1373,7 @@
       AUDIT = data.audit || [];
       events.forEach(function (e) { if (!e.flyer && pool[e.id]) e.flyer = pool[e.id]; });
       renderAll();
+      renderRetag();
       if ($("boot-note")) $("boot-note").hidden = true;
     }).catch(function () {
       if ($("boot-note")) {
