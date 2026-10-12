@@ -152,20 +152,18 @@ if (WEB) {
     fill(body, "[]", "{}", "[]") +
     "</body>\n</html>\n";
 
-  const out = path.join(DIR, "..", "public", "index.html");
-  fs.mkdirSync(path.dirname(out), { recursive: true });
-  fs.writeFileSync(out, page, "utf8");
+  // One page serves every section; which one shows is read from the address.
+  // Each section is written as its own file rather than rewritten by
+  // _redirects: a 200 rewrite to /index.html makes Cloudflare bounce the
+  // browser to /, which loses the address the page needs to read.
+  const pub = path.join(DIR, "..", "public");
+  fs.mkdirSync(pub, { recursive: true });
+  ["index.html", "calendar.html", "jobs.html"].forEach((name) => {
+    fs.writeFileSync(path.join(pub, name), page, "utf8");
+  });
 
-  // The data the site starts with, uploaded once to KV by seed-kv.js.
-  // /calendar shows the same page as the landing page, served in place (200)
-  // rather than redirected, so the address bar keeps the tidy /calendar form
-  // and nothing is duplicated on disk.
-  fs.writeFileSync(
-    path.join(DIR, "..", "public", "_redirects"),
-    "/calendar  /index.html  200\n/calendar/  /index.html  200\n" +
-      "/jobs  /index.html  200\n/jobs/  /index.html  200\n",
-    "utf8"
-  );
+  const stale = path.join(pub, "_redirects");
+  if (fs.existsSync(stale)) fs.unlinkSync(stale);
 
   fs.writeFileSync(path.join(DIR, "..", "public", "_headers"), headersFile(page), "utf8");
 

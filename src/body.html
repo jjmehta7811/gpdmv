@@ -465,7 +465,7 @@
   // /calendar and /jobs are real links people can send each other.
   var ROUTE = (function () {
     if (!API) return "calendar";   // the artifact has no second section
-    return /^\/jobs(\/|$)/i.test(window.location.pathname || "/") ? "jobs" : "calendar";
+    return /^\/jobs(\.html)?\/?$/i.test(window.location.pathname || "/") ? "jobs" : "calendar";
   })();
 
   var jobs = [];

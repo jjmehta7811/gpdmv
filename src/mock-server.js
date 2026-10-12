@@ -112,7 +112,8 @@ http.createServer(async (req, res) => {
   }
 
   // Mirror the _redirects rule so local testing matches the deployed site.
-  const asIndex = (url === "/" || /^\/(calendar|jobs)\/?$/.test(url));
+  // Cloudflare Pages serves /jobs from jobs.html; mirror that here.
+  const asIndex = (url === "/" || /^\/(calendar|jobs)(\.html)?\/?$/.test(url));
   const file = path.join(DIR, asIndex ? "index.html" : url.replace(/^\//, ""));
   if (file.startsWith(DIR) && fs.existsSync(file) && fs.statSync(file).isFile()) {
     res.writeHead(200, Object.assign({}, SEC, {
