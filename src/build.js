@@ -106,6 +106,15 @@ if (WEB) {
   fs.writeFileSync(out, page, "utf8");
 
   // The data the site starts with, uploaded once to KV by seed-kv.js.
+  // /calendar shows the same page as the landing page, served in place (200)
+  // rather than redirected, so the address bar keeps the tidy /calendar form
+  // and nothing is duplicated on disk.
+  fs.writeFileSync(
+    path.join(DIR, "..", "public", "_redirects"),
+    "/calendar  /index.html  200\n/calendar/  /index.html  200\n",
+    "utf8"
+  );
+
   const seedOut = path.join(DIR, "..", "seed", "seed-data.json");
   fs.mkdirSync(path.dirname(seedOut), { recursive: true });
   fs.writeFileSync(

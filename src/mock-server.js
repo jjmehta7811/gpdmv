@@ -69,7 +69,9 @@ http.createServer(async (req, res) => {
     return send(res, 200, { ok: true, events: store.events.length });
   }
 
-  const file = path.join(DIR, url === "/" ? "index.html" : url.replace(/^\//, ""));
+  // Mirror the _redirects rule so local testing matches the deployed site.
+  const asIndex = (url === "/" || url === "/calendar" || url === "/calendar/");
+  const file = path.join(DIR, asIndex ? "index.html" : url.replace(/^\//, ""));
   if (file.startsWith(DIR) && fs.existsSync(file) && fs.statSync(file).isFile()) {
     res.writeHead(200, { "Content-Type": file.endsWith(".html") ? "text/html; charset=utf-8" : "application/json" });
     return res.end(fs.readFileSync(file));

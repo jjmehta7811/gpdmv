@@ -179,6 +179,22 @@ h1{font-size:26px;letter-spacing:-.01em}
 }
 .how .tip{margin:12px 0 0;font-size:13.5px;color:var(--muted)}
 
+/* ---------- section tabs ---------- */
+.sitenav{
+  display:flex;gap:4px;flex-wrap:wrap;
+  margin:-8px 0 22px;padding:0 0 0 2px;
+  border-bottom:1px solid var(--line);
+}
+.sitetab{
+  display:inline-block;padding:10px 16px;
+  font:600 15px/1 var(--body);color:var(--muted);text-decoration:none;
+  border-bottom:3px solid transparent;margin-bottom:-1px;
+  border-radius:8px 8px 0 0;
+}
+.sitetab:hover{color:var(--ink);background:var(--surface-2)}
+.sitetab.is-on{color:var(--indigo);border-bottom-color:var(--indigo)}
+.sitetab.is-off{color:var(--line-strong);pointer-events:none}
+
 /* ---------- notice ---------- */
 .notice{
   display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;
