@@ -1,4 +1,8 @@
 node_modules/
 .wrangler/
 live/
-*.png
+
+# Stray screenshots from local testing — never the site's own images,
+# which live under public/.
+/*.png
+/src/*.png
