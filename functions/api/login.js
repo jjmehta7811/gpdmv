@@ -1,4 +1,5 @@
 import { checkPassword, makeCookie, json } from "./_auth.js";
+import { record } from "./_audit.js";
 
 // Simple throttle so the password cannot be guessed by brute force.
 // One KV counter per IP, 10 tries per 15 minutes.
@@ -33,10 +34,12 @@ export async function onRequestPost({ request, env }) {
     try {
       await env.CALENDAR.put(key, String(tries + 1), { expirationTtl: WINDOW });
     } catch (e) { /* ignore */ }
+    await record(env, request, "failed");
     return json({ error: "Wrong password." }, 401);
   }
 
   try { await env.CALENDAR.delete(key); } catch (e) { /* ignore */ }
+  await record(env, request, "signin");
 
   return json({ ok: true }, 200, { "Set-Cookie": await makeCookie(env) });
 }

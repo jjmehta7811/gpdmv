@@ -115,6 +115,17 @@
       </div>
     </section>
 
+    <section class="vh" id="act" hidden>
+      <button type="button" class="vh-toggle" id="act-toggle" aria-expanded="false">
+        <span>Account activity</span>
+        <span class="vh-count" id="act-count"></span>
+      </button>
+      <div class="vh-body" id="act-body" hidden>
+        <p class="sheet-note">Every sign-in and save, newest first. You are the only editor, so anything here you do not recognise means the password should be changed.</p>
+        <ul class="vh-list" id="act-list"></ul>
+      </div>
+    </section>
+
     <form id="form" autocomplete="off">
       <div class="field">
         <label for="f-title">Event name</label>
@@ -301,6 +312,7 @@
   // page then loads from, and saves to, that server instead.
   var API = (typeof window.GPDMV_API === "string" && window.GPDMV_API) || null;
   var CAN_EDIT = !API;   // on claude.ai the platform decides; on the web the server does
+  var AUDIT = [];
 
   var events = readJSON("event-data", []);
   events = (events || []).filter(function (e) { return e && e.date; });
@@ -825,6 +837,42 @@
     manual();
   });
 
+  var ACT_LABEL = { signin: "Signed in", failed: "Wrong password tried", save: "Saved a change" };
+
+  function renderActivity() {
+    if (!API) return;
+    var box = $("act");
+    if (!box) return;
+    box.hidden = !CAN_EDIT;
+    if (!CAN_EDIT) return;
+
+    $("act-count").textContent = AUDIT.length
+      ? AUDIT.length + (AUDIT.length === 1 ? " entry" : " entries")
+      : "nothing yet";
+
+    $("act-list").innerHTML = AUDIT.length
+      ? AUDIT.map(function (a) {
+          var where = [a.city, a.country].filter(Boolean).join(", ");
+          var bits = [stamp(a.ts)];
+          if (where) bits.push(where);
+          if (a.agent) bits.push(a.agent);
+          if (a.ip) bits.push(a.ip);
+          return "<li" + (a.kind === "failed" ? ' style="border-color:var(--madder)"' : "") + ">" +
+            '<span class="vn"><b>' + esc(ACT_LABEL[a.kind] || a.kind) + "</b><span>" +
+            esc(bits.join(" \u00b7 ")) + "</span></span></li>";
+        }).join("")
+      : '<li><span class="vn"><b>Nothing recorded yet</b><span>Sign-ins and saves will appear here.</span></span></li>';
+  }
+
+  if (API && $("act-toggle")) {
+    $("act-toggle").addEventListener("click", function () {
+      var open = $("act-body").hidden;
+      $("act-body").hidden = !open;
+      this.setAttribute("aria-expanded", open ? "true" : "false");
+      if (open) renderActivity();
+    });
+  }
+
   function fillForm(ev) {
     $("f-title").value = ev ? ev.title || "" : "";
     $("f-cat").value = ev && CATS[ev.category] ? ev.category : "social";
@@ -852,6 +900,7 @@
   $("manage").addEventListener("click", function () {
     renderManageList();
     renderHistory();
+    renderActivity();
     $("vh-body").hidden = false;
     $("vh-toggle").setAttribute("aria-expanded", "true");
     fillForm(null);
@@ -1062,6 +1111,7 @@
         if (r.ok) {
           CAN_EDIT = true;
           $("login-row").hidden = true;
+          apiLoad().then(function (d) { AUDIT = d.audit || []; renderActivity(); }).catch(function () {});
           setStatus("Signed in. You can edit the calendar now.", "ok");
         } else {
           setStatus("That password is not right.", "err");
@@ -1080,6 +1130,7 @@
       pool = data.flyers || {};
       history = data.history || [];
       CAN_EDIT = !!data.canEdit;
+      AUDIT = data.audit || [];
       events.forEach(function (e) { if (!e.flyer && pool[e.id]) e.flyer = pool[e.id]; });
       renderAll();
       if ($("boot-note")) $("boot-note").hidden = true;

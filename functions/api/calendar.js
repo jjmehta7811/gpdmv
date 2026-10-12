@@ -1,4 +1,5 @@
 import { canEdit, json } from "./_auth.js";
+import { record, read as readAudit } from "./_audit.js";
 
 const KEY = "calendar";
 const MAX_BYTES = 20 * 1024 * 1024; // KV ceiling is 25MB; stay clear of it.
@@ -24,6 +25,8 @@ async function read(env) {
 export async function onRequestGet({ request, env }) {
   const data = await read(env);
   data.canEdit = await canEdit(request, env);
+  // The activity log is for the editor only; it carries IP addresses.
+  if (data.canEdit) data.audit = await readAudit(env);
   return json(data);
 }
 
@@ -56,5 +59,6 @@ export async function onRequestPut({ request, env }) {
   }
 
   await env.CALENDAR.put(KEY, payload);
+  await record(env, request, "save");
   return json({ ok: true, events: next.events.length });
 }

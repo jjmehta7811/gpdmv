@@ -10,6 +10,7 @@ const PASSWORD = "test-password";
 const SECRET = "test-secret";
 const COOKIE = "gpdmv_editor";
 
+let audit = [];
 let store = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "seed", "seed-data.json"), "utf8"));
 
 function sign(v) {
@@ -48,13 +49,15 @@ http.createServer(async (req, res) => {
 
   if (url === "/api/login" && req.method === "POST") {
     const b = await readBody(req);
-    if (!b || b.password !== PASSWORD) return send(res, 401, { error: "Wrong password." });
+    if (!b || b.password !== PASSWORD) { audit.unshift({ts:Date.now(),kind:"failed",ip:"203.0.113.9",country:"US",city:"Fairfax",agent:"Firefox on Windows"}); return send(res, 401, { error: "Wrong password." }); }
+    audit.unshift({ts:Date.now(),kind:"signin",ip:"203.0.113.9",country:"US",city:"Fairfax",agent:"Firefox on Windows"});
     res.setHeader("Set-Cookie", makeCookie());
     return send(res, 200, { ok: true });
   }
 
   if (url === "/api/calendar" && req.method === "GET") {
-    return send(res, 200, Object.assign({}, store, { canEdit: canEdit(req) }));
+    const can = canEdit(req);
+    return send(res, 200, Object.assign({}, store, { canEdit: can }, can ? { audit } : {}));
   }
 
   if (url === "/api/calendar" && req.method === "PUT") {
@@ -62,6 +65,7 @@ http.createServer(async (req, res) => {
     const b = await readBody(req);
     if (!b || !Array.isArray(b.events)) return send(res, 400, { error: "Bad request." });
     store = { events: b.events, flyers: b.flyers || {}, history: (b.history || []).slice(0, 12) };
+    audit.unshift({ts:Date.now(),kind:"save",ip:"203.0.113.9",country:"US",city:"Fairfax",agent:"Firefox on Windows"});
     return send(res, 200, { ok: true, events: store.events.length });
   }
 
