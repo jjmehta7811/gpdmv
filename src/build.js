@@ -3,6 +3,7 @@
 //   node build.js --web   -> site/index.html          (gpdmv.com: loads from /api)
 const fs = require("fs");
 const path = require("path");
+const crypto = require("crypto");
 
 const DIR = __dirname;
 const WEB = process.argv.includes("--web");
@@ -64,6 +65,56 @@ const enc = (v) => JSON.stringify(v).replace(/</g, "\\u003c");
 
 const BUILD = process.env.BUILD || "50";
 
+// Every inline script in the page, hashed, so the Content-Security-Policy can
+// allow exactly those and nothing else — no 'unsafe-inline' for scripts.
+// Blocks with a type other than JavaScript (the base64 template, the JSON data
+// islands) are never executed, so they need no hash.
+function scriptHashes(html) {
+  const out = [];
+  const re = /<script([^>]*)>([\s\S]*?)<\/script>/g;
+  let m;
+  while ((m = re.exec(html))) {
+    const attrs = m[1] || "";
+    const type = (attrs.match(/type\s*=\s*"([^"]*)"/i) || [])[1];
+    if (type && !/^(text\/javascript|module)$/i.test(type)) continue;
+    if (/\ssrc\s*=/.test(attrs)) continue;
+    out.push("'sha256-" + crypto.createHash("sha256").update(m[2], "utf8").digest("base64") + "'");
+  }
+  return [...new Set(out)];
+}
+
+function headersFile(html) {
+  const csp = [
+    "default-src 'none'",
+    "base-uri 'none'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+    // Cloudflare's own analytics beacon, so turning Web Analytics on keeps working.
+    "connect-src 'self' https://cloudflareinsights.com",
+    "img-src 'self' data:",
+    "font-src https://fonts.gstatic.com",
+    // Colours are set per event through style attributes, so inline styles stay.
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "script-src " + scriptHashes(html).join(" ") + " https://static.cloudflareinsights.com"
+  ].join("; ");
+
+  return [
+    "/*",
+    "  Content-Security-Policy: " + csp,
+    "  Strict-Transport-Security: max-age=31536000; includeSubDomains",
+    "  X-Frame-Options: DENY",
+    "  X-Content-Type-Options: nosniff",
+    "  Referrer-Policy: strict-origin-when-cross-origin",
+    "  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=()",
+    "  Cross-Origin-Opener-Policy: same-origin",
+    "",
+    // The feed is meant to be read by calendar apps on other origins.
+    "/calendar.ics",
+    "  Access-Control-Allow-Origin: *",
+    ""
+  ].join("\n");
+}
+
 function fill(src, data, poolData, hist) {
   return src
     .replace("{{TPL}}", () => shellB64)
@@ -114,6 +165,8 @@ if (WEB) {
     "/calendar  /index.html  200\n/calendar/  /index.html  200\n",
     "utf8"
   );
+
+  fs.writeFileSync(path.join(DIR, "..", "public", "_headers"), headersFile(page), "utf8");
 
   const seedOut = path.join(DIR, "..", "seed", "seed-data.json");
   fs.mkdirSync(path.dirname(seedOut), { recursive: true });

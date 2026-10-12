@@ -10,6 +10,23 @@ const PASSWORD = "test-password";
 const SECRET = "test-secret";
 const COOKIE = "gpdmv_editor";
 
+// Apply the same security headers Cloudflare Pages will send, so a policy that
+// would break the page breaks it here first.
+const SEC = (function () {
+  const p = path.join(DIR, "_headers");
+  if (!fs.existsSync(p)) return {};
+  const out = {};
+  let inGlobal = false;
+  fs.readFileSync(p, "utf8").split(/\r?\n/).forEach(function (line) {
+    if (!line.trim()) return;
+    if (!/^\s/.test(line)) { inGlobal = line.trim() === "/*"; return; }
+    if (!inGlobal) return;
+    const i = line.indexOf(":");
+    if (i > 0) out[line.slice(0, i).trim()] = line.slice(i + 1).trim();
+  });
+  return out;
+})();
+
 let audit = [];
 let store = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "seed", "seed-data.json"), "utf8"));
 
@@ -84,7 +101,9 @@ http.createServer(async (req, res) => {
   const asIndex = (url === "/" || url === "/calendar" || url === "/calendar/");
   const file = path.join(DIR, asIndex ? "index.html" : url.replace(/^\//, ""));
   if (file.startsWith(DIR) && fs.existsSync(file) && fs.statSync(file).isFile()) {
-    res.writeHead(200, { "Content-Type": file.endsWith(".html") ? "text/html; charset=utf-8" : "application/json" });
+    res.writeHead(200, Object.assign({}, SEC, {
+      "Content-Type": file.endsWith(".html") ? "text/html; charset=utf-8" : "application/json"
+    }));
     return res.end(fs.readFileSync(file));
   }
   res.writeHead(404); res.end("not found");
