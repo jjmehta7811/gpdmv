@@ -239,56 +239,59 @@ h1{font-size:26px;letter-spacing:-.01em}
   border:1px solid var(--line-strong);background:var(--surface);
   font:500 14.5px/1.2 var(--body);color:var(--ink);
 }
-.dir-layout{display:block}
-.dir-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
-.chip{
-  border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);
-  border-radius:999px;padding:6px 11px;cursor:pointer;
-  font:500 13px/1 var(--body);
+/* The trades stand in a column down the left at every width; on a phone the
+   column narrows and each trade uses its short name so the businesses beside
+   it keep a readable width. */
+.dir-layout{display:grid;grid-template-columns:104px minmax(0,1fr);gap:12px;align-items:start}
+.dir-chips{
+  display:flex;flex-direction:column;gap:1px;margin:0;
+  position:sticky;top:10px;
+  border-right:1px solid var(--line);padding-right:8px;
 }
-.chip span{color:var(--muted);font-weight:600;margin-left:3px}
-.chip:hover{border-color:var(--indigo);color:var(--indigo)}
-.chip.on{background:var(--indigo);border-color:var(--indigo);color:var(--on-accent)}
-.chip.on span{color:var(--on-accent);opacity:.75}
+.tchip{
+  display:flex;align-items:center;gap:6px;width:100%;text-align:left;
+  border:0;background:none;border-radius:8px;padding:7px 7px;cursor:pointer;
+  font:500 12.5px/1.3 var(--body);color:var(--ink-2);
+}
+.tchip .n{margin-left:auto;color:var(--muted);font-weight:600;font-size:11.5px}
+.tchip:hover{background:var(--surface-2);color:var(--ink)}
+.tchip.on{background:var(--indigo-wash);color:var(--indigo);font-weight:600}
+.tchip.on .n{color:var(--indigo);opacity:.8}
+.tchip:first-child{margin-bottom:5px}
+.t-full{display:none}
+.t-short{display:inline}
 .dir-count{margin:0 0 12px;font-size:13px;color:var(--muted)}
-/* On a wide screen the trades stand in a column down the left, so the whole
-   list of them is readable at a glance and the businesses keep their width. */
 @media (min-width:860px){
-  .dir-layout{display:grid;grid-template-columns:232px minmax(0,1fr);gap:26px;align-items:start}
-  .dir-chips{
-    flex-direction:column;flex-wrap:nowrap;gap:1px;margin:0;
-    position:sticky;top:14px;
-    border-right:1px solid var(--line);padding-right:14px;
-  }
-  .dir-chips .chip{
-    display:flex;align-items:center;gap:8px;width:100%;text-align:left;
-    border:0;background:none;border-radius:8px;padding:8px 10px;
-    font:500 13.5px/1.35 var(--body);color:var(--ink-2);
-  }
-  .dir-chips .chip span{margin-left:auto;font-size:12.5px}
-  .dir-chips .chip:first-child{margin-bottom:6px}
-  .dir-chips .chip:hover{background:var(--surface-2);color:var(--ink)}
-  .dir-chips .chip.on{background:var(--indigo-wash);color:var(--indigo);font-weight:600}
-  .dir-chips .chip.on span{color:var(--indigo);opacity:.8}
+  .dir-layout{grid-template-columns:232px minmax(0,1fr);gap:26px}
+  .dir-chips{top:14px;padding-right:14px}
+  .tchip{padding:8px 10px;font-size:13.5px;gap:8px}
+  .tchip .n{font-size:12.5px}
+  .tchip:first-child{margin-bottom:6px}
+  .t-full{display:inline}
+  .t-short{display:none}
 }
 .dir-empty{margin:18px 0;font-size:15px;color:var(--muted)}
 .bz-group{margin:0 0 20px}
 .bz-group h3{
-  margin:0 0 8px;font:600 14px/1 var(--body);color:var(--ink-2);
+  margin:0 0 8px;font:600 14px/1.25 var(--body);color:var(--ink-2);
   text-transform:uppercase;letter-spacing:.05em;
 }
 .bz-group h3 span{color:var(--muted);font-weight:500;letter-spacing:0;text-transform:none}
 .bz-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
 .bz{border:1px solid var(--line);border-radius:11px;background:var(--surface);overflow:hidden}
 .bz-head{
+  position:relative;
   width:100%;display:flex;align-items:baseline;gap:10px;text-align:left;
-  background:none;border:0;padding:12px 14px;cursor:pointer;font:inherit;
+  background:none;border:0;padding:12px 32px 12px 14px;cursor:pointer;font:inherit;
 }
 .bz-head:hover{background:var(--surface-2)}
 .bz-name{font:600 15.5px/1.3 var(--body);color:var(--ink)}
 .bz-type{font-size:13px;color:var(--muted);flex:1;min-width:0}
-.bz-chev{color:var(--muted);transition:transform .15s;font-size:17px}
-.bz-head[aria-expanded="true"] .bz-chev{transform:rotate(90deg)}
+.bz-chev{
+  position:absolute;right:13px;top:50%;transform:translateY(-50%);
+  color:var(--muted);transition:transform .15s;font-size:17px;
+}
+.bz-head[aria-expanded="true"] .bz-chev{transform:translateY(-50%) rotate(90deg)}
 .bz-body{padding:2px 14px 14px;border-top:1px solid var(--line)}
 .bz-person{margin:10px 0 0;font-size:13.5px;color:var(--muted)}
 .bz-facts{display:flex;flex-direction:column;gap:2px;margin:10px 0 0}
@@ -306,12 +309,17 @@ a.bz-fact:hover{color:var(--indigo)}
   border:1px solid var(--line-strong);background:var(--surface);
   font:500 14px/1.2 var(--body);color:var(--ink);
 }
-@media (max-width:640px){
-  .dir-panel{padding:16px}
+@media (max-width:860px){
+  .dir-panel{padding:16px 14px}
   .dir-sort{width:100%}
   .dir-sort select{width:100%}
-  .bz-head{flex-wrap:wrap;gap:2px 10px}
-  .bz-type{flex-basis:100%}
+  .bz-head{flex-wrap:wrap;gap:2px 8px;padding:11px 30px 11px 12px}
+  .bz-name{font-size:14.5px;flex:1;min-width:0}
+  .bz-type{flex-basis:100%;font-size:12.5px}
+  .bz-body{padding:2px 12px 12px}
+  .bz-fact{flex-wrap:wrap;gap:0 8px}
+  .bz-fact b{width:auto;flex-basis:100%}
+  .bz-group h3{font-size:12.5px}
 }
 
 /* ---------- section tabs ---------- */

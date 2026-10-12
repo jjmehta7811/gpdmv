@@ -1793,26 +1793,29 @@
   /* ---------- directory ---------- */
   // The trades the member businesses actually fall into. A business keeps the
   // words its owner used in "type"; this is only how the page groups them.
+  // Each trade carries a short name as well, for the narrow column a phone gets.
   var TRADES = {
-    food:       "Restaurants & Food Shops",
-    catering:   "Catering & Home Food",
-    shopping:   "Clothing, Jewellery & Gifts",
-    tailoring:  "Tailoring & Alterations",
-    events:     "Events & Weddings",
-    photo:      "Photography & Video",
-    arts:       "Music, Dance & Arts",
-    classes:    "Classes & Coaching",
-    realestate: "Real Estate",
-    finance:    "Finance, Tax & Insurance",
-    health:     "Health & Wellness",
-    home:       "Home Services",
-    tech:       "Technology & Web",
-    religious:  "Religious Services",
-    other:      "Other"
+    food:       ["Restaurants & Food Shops", "Restaurants"],
+    catering:   ["Catering & Home Food",     "Catering"],
+    shopping:   ["Clothing, Jewellery & Gifts", "Clothing"],
+    tailoring:  ["Tailoring & Alterations",  "Tailoring"],
+    events:     ["Events & Weddings",        "Events"],
+    photo:      ["Photography & Video",      "Photo"],
+    arts:       ["Music, Dance & Arts",      "Music"],
+    classes:    ["Classes & Coaching",       "Classes"],
+    realestate: ["Real Estate",              "Property"],
+    finance:    ["Finance, Tax & Insurance", "Finance"],
+    health:     ["Health & Wellness",        "Health"],
+    home:       ["Home Services",            "Home"],
+    tech:       ["Technology & Web",         "Tech"],
+    religious:  ["Religious Services",       "Religious"],
+    other:      ["Other",                    "Other"]
   };
   var TRADE_KEYS = Object.keys(TRADES);
 
   function trade(k) { return TRADES[k] ? k : "other"; }
+  function tradeName(k) { return TRADES[trade(k)][0]; }
+  function tradeShort(k) { return TRADES[trade(k)][1]; }
 
   // Review links rather than pulled-in ratings: these always show what Google
   // and Yelp have right now, cost nothing, and need no account.
@@ -1862,7 +1865,7 @@
   function dirMatches(b, q) {
     if (dirFilter && trade(b.cat) !== dirFilter) return false;
     if (!q) return true;
-    var hay = [b.name, b.type, b.person, b.address, b.notes, TRADES[trade(b.cat)]]
+    var hay = [b.name, b.type, b.person, b.address, b.notes, tradeName(b.cat)]
       .filter(Boolean).join(" ").toLowerCase();
     return hay.indexOf(q) > -1;
   }
@@ -1875,12 +1878,15 @@
   function renderDirChips() {
     var counts = {};
     biz.forEach(function (b) { var k = trade(b.cat); counts[k] = (counts[k] || 0) + 1; });
-    var html = '<button type="button" class="chip' + (dirFilter ? "" : " on") + '" data-trade="">All ' +
-      '<span>' + biz.length + "</span></button>";
+    var html = '<button type="button" class="tchip' + (dirFilter ? "" : " on") + '" data-trade="">' +
+      '<span class="t-full">All trades</span><span class="t-short">All</span>' +
+      '<span class="n">' + biz.length + "</span></button>";
     TRADE_KEYS.forEach(function (k) {
       if (!counts[k]) return;
-      html += '<button type="button" class="chip' + (dirFilter === k ? " on" : "") + '" data-trade="' + k + '">' +
-        esc(TRADES[k]) + " <span>" + counts[k] + "</span></button>";
+      html += '<button type="button" class="tchip' + (dirFilter === k ? " on" : "") + '" data-trade="' + k + '">' +
+        '<span class="t-full">' + esc(TRADES[k][0]) + '</span>' +
+        '<span class="t-short">' + esc(TRADES[k][1]) + '</span>' +
+        '<span class="n">' + counts[k] + "</span></button>";
     });
     $("dir-chips").innerHTML = html;
   }
@@ -1916,7 +1922,7 @@
     var html = "";
     TRADE_KEYS.forEach(function (k) {
       if (!groups[k]) return;
-      html += '<section class="bz-group"><h3>' + esc(TRADES[k]) +
+      html += '<section class="bz-group"><h3>' + esc(TRADES[k][0]) +
         ' <span>' + groups[k].length + "</span></h3>" +
         '<ul class="bz-list">' + groups[k].sort(byName).map(bizCard).join("") + "</ul></section>";
     });
@@ -1974,7 +1980,7 @@
     $("dir-manage-list").innerHTML = list.length ? list.map(function (b) {
       return '<li style="border-left-color:var(--indigo)">' +
         '<span class="mn"><b>' + esc(b.name) + "</b><span>" +
-          esc([TRADES[trade(b.cat)], b.person].filter(Boolean).join(" · ")) + "</span></span>" +
+          esc([tradeName(b.cat), b.person].filter(Boolean).join(" · ")) + "</span></span>" +
         '<button type="button" class="mini" data-bedit="' + esc(b.id) + '">Edit</button>' +
         '<button type="button" class="mini" data-bdel="' + esc(b.id) + '">Delete</button>' +
       "</li>";
@@ -2016,7 +2022,7 @@
     if (!$("b-cat").options.length) {
       TRADE_KEYS.forEach(function (k) {
         var o = document.createElement("option");
-        o.value = k; o.textContent = TRADES[k];
+        o.value = k; o.textContent = TRADES[k][0];
         $("b-cat").appendChild(o);
       });
     }
