@@ -239,6 +239,7 @@ h1{font-size:26px;letter-spacing:-.01em}
   border:1px solid var(--line-strong);background:var(--surface);
   font:500 14.5px/1.2 var(--body);color:var(--ink);
 }
+.dir-layout{display:block}
 .dir-chips{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 10px}
 .chip{
   border:1px solid var(--line-strong);background:var(--surface);color:var(--ink-2);
@@ -250,6 +251,26 @@ h1{font-size:26px;letter-spacing:-.01em}
 .chip.on{background:var(--indigo);border-color:var(--indigo);color:var(--on-accent)}
 .chip.on span{color:var(--on-accent);opacity:.75}
 .dir-count{margin:0 0 12px;font-size:13px;color:var(--muted)}
+/* On a wide screen the trades stand in a column down the left, so the whole
+   list of them is readable at a glance and the businesses keep their width. */
+@media (min-width:860px){
+  .dir-layout{display:grid;grid-template-columns:232px minmax(0,1fr);gap:26px;align-items:start}
+  .dir-chips{
+    flex-direction:column;flex-wrap:nowrap;gap:1px;margin:0;
+    position:sticky;top:14px;
+    border-right:1px solid var(--line);padding-right:14px;
+  }
+  .dir-chips .chip{
+    display:flex;align-items:center;gap:8px;width:100%;text-align:left;
+    border:0;background:none;border-radius:8px;padding:8px 10px;
+    font:500 13.5px/1.35 var(--body);color:var(--ink-2);
+  }
+  .dir-chips .chip span{margin-left:auto;font-size:12.5px}
+  .dir-chips .chip:first-child{margin-bottom:6px}
+  .dir-chips .chip:hover{background:var(--surface-2);color:var(--ink)}
+  .dir-chips .chip.on{background:var(--indigo-wash);color:var(--indigo);font-weight:600}
+  .dir-chips .chip.on span{color:var(--indigo);opacity:.8}
+}
 .dir-empty{margin:18px 0;font-size:15px;color:var(--muted)}
 .bz-group{margin:0 0 20px}
 .bz-group h3{
