@@ -158,7 +158,7 @@ if (WEB) {
   // browser to /, which loses the address the page needs to read.
   const pub = path.join(DIR, "..", "public");
   fs.mkdirSync(pub, { recursive: true });
-  ["index.html", "calendar.html", "jobs.html"].forEach((name) => {
+  ["index.html", "calendar.html", "jobs.html", "directory.html"].forEach((name) => {
     fs.writeFileSync(path.join(pub, name), page, "utf8");
   });
 

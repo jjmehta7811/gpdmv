@@ -29,6 +29,10 @@ const SEC = (function () {
 
 let audit = [];
 let jobStore = { jobs: [] };
+let dirStore = (() => {
+  const p = path.join(__dirname, "..", "seed", "directory-data.json");
+  return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, "utf8")) : { businesses: [] };
+})();
 let store = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "seed", "seed-data.json"), "utf8"));
 
 function sign(v) {
@@ -87,6 +91,19 @@ http.createServer(async (req, res) => {
     return send(res, 200, { ok: true, events: store.events.length });
   }
 
+  if (url === "/api/directory" && req.method === "GET") {
+    return send(res, 200, { businesses: dirStore.businesses, canEdit: canEdit(req) });
+  }
+
+  if (url === "/api/directory" && req.method === "PUT") {
+    if (!canEdit(req)) return send(res, 401, { error: "Not signed in." });
+    const b = await readBody(req);
+    if (!b || !Array.isArray(b.businesses)) return send(res, 400, { error: "Bad request." });
+    dirStore = { businesses: b.businesses };
+    audit.unshift({ts:Date.now(),kind:"directory",ip:"203.0.113.9",country:"US",city:"Fairfax",agent:"Firefox on Windows"});
+    return send(res, 200, { ok: true, businesses: dirStore.businesses.length });
+  }
+
   if (url === "/api/jobs" && req.method === "GET") {
     return send(res, 200, { jobs: jobStore.jobs, canEdit: canEdit(req) });
   }
@@ -113,7 +130,7 @@ http.createServer(async (req, res) => {
 
   // Mirror the _redirects rule so local testing matches the deployed site.
   // Cloudflare Pages serves /jobs from jobs.html; mirror that here.
-  const asIndex = (url === "/" || /^\/(calendar|jobs)(\.html)?\/?$/.test(url));
+  const asIndex = (url === "/" || /^\/(calendar|jobs|directory)(\.html)?\/?$/.test(url));
   const file = path.join(DIR, asIndex ? "index.html" : url.replace(/^\//, ""));
   if (file.startsWith(DIR) && fs.existsSync(file) && fs.statSync(file).isFile()) {
     res.writeHead(200, Object.assign({}, SEC, {

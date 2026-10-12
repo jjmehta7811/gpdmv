@@ -34,6 +34,7 @@
   <nav class="sitenav" aria-label="Sections">
     <a class="sitetab" id="tab-calendar" href="/calendar">Calendar</a>
     <a class="sitetab" id="tab-jobs" href="/jobs" hidden>Jobs</a>
+    <a class="sitetab" id="tab-directory" href="/directory" hidden>Directory</a>
   </nav>
 
   <div class="drawer" id="sub-drawer" hidden>
@@ -103,6 +104,33 @@
     </section>
   </div>
 
+  <div id="view-directory" hidden>
+    <section class="panel dir-panel">
+      <div class="jobs-head">
+        <h2>Community business directory</h2>
+        <p class="jobs-sub">Businesses run by GPDMV members. To be listed, call or text <a class="tel" href="tel:+12144637811">214-463-7811</a>.</p>
+      </div>
+
+      <div class="dir-controls">
+        <div class="dir-search">
+          <input id="dir-q" type="search" placeholder="Search a business, a trade or a town…" autocomplete="off" aria-label="Search the directory">
+        </div>
+        <div class="dir-sort">
+          <label for="dir-sort">Show</label>
+          <select id="dir-sort">
+            <option value="group">Grouped by trade</option>
+            <option value="name">All, A to Z</option>
+            <option value="new">Newest first</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="dir-chips" id="dir-chips"></div>
+      <p class="dir-count" id="dir-count"></p>
+      <div id="dir-body"></div>
+    </section>
+  </div>
+
   <div id="view-calendar">
   <main class="layout">
     <section class="panel">
@@ -137,6 +165,7 @@
     <span class="spacer" style="flex:1"></span>
     <button class="linky" id="manage" hidden>Manage events</button>
     <button class="linky" id="manage-jobs" hidden>Manage jobs</button>
+    <button class="linky" id="manage-dir" hidden>Manage directory</button>
   </footer>
 </div>
 
@@ -330,6 +359,78 @@
   </div>
 </div>
 
+<div class="drawer" id="dir-drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dir-sheet-title">
+    <div class="sheet-head">
+      <h2 id="dir-sheet-title">Manage directory</h2>
+      <span class="spacer" style="flex:1"></span>
+      <button class="mini" id="close-dir">Close</button>
+    </div>
+    <form class="login-row" id="dir-login-row" hidden>
+      <label for="dir-pw">Editor password</label>
+      <input id="dir-pw" type="password" autocomplete="current-password" placeholder="Password">
+      <button type="submit" class="btn primary">Sign in</button>
+    </form>
+
+    <p class="sheet-note">Only the business name and a trade are needed — everything else shows when it is filled in.</p>
+
+    <input id="dir-filter" type="search" class="dir-filter" placeholder="Find a business in the list…" autocomplete="off" aria-label="Filter the list">
+    <ul class="manage-list" id="dir-manage-list"></ul>
+
+    <form id="dir-form" autocomplete="off">
+      <div class="row2">
+        <div class="field">
+          <label for="b-name">Business name</label>
+          <input id="b-name" name="name" required maxlength="90" placeholder="Komal Caterers">
+        </div>
+        <div class="field">
+          <label for="b-cat">Trade</label>
+          <select id="b-cat" name="cat"></select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="b-type">What they do</label>
+          <input id="b-type" name="type" maxlength="120" placeholder="Jain and pure veg catering">
+        </div>
+        <div class="field">
+          <label for="b-person">Member</label>
+          <input id="b-person" name="person" maxlength="90" placeholder="Pratik Mistry">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="b-phone">Phone</label>
+          <input id="b-phone" name="phone" maxlength="40" placeholder="(240) 917-8220">
+        </div>
+        <div class="field">
+          <label for="b-email">Email</label>
+          <input id="b-email" name="email" maxlength="120" placeholder="komalcaterers2016@gmail.com">
+        </div>
+      </div>
+      <div class="field">
+        <label for="b-address">Address</label>
+        <input id="b-address" name="address" maxlength="160" placeholder="506 Shaw Road, Sterling, VA 20166">
+      </div>
+      <div class="field">
+        <label for="b-hours">Hours</label>
+        <input id="b-hours" name="hours" maxlength="160" placeholder="8am – 8pm">
+      </div>
+      <div class="field">
+        <label for="b-notes">Notes</label>
+        <textarea id="b-notes" name="notes" rows="4" maxlength="2000" placeholder="Anything the member wrote about the business."></textarea>
+      </div>
+
+      <div class="sheet-actions">
+        <button type="submit" class="btn primary" id="dir-save-btn">Add business</button>
+        <button type="button" class="btn quiet" id="dir-reset-btn">Clear form</button>
+        <span class="spacer"></span>
+      </div>
+      <p class="status" id="dir-status"></p>
+    </form>
+  </div>
+</div>
+
 <script id="event-data" type="application/json">{{DATA}}</script>
 <script id="flyer-pool" type="application/json">{{POOL}}</script>
 <script id="history-data" type="application/json">{{HIST}}</script>
@@ -464,11 +565,15 @@
   // One page, two sections. The address decides which one is showing, so
   // /calendar and /jobs are real links people can send each other.
   var ROUTE = (function () {
-    if (!API) return "calendar";   // the artifact has no second section
-    return /^\/jobs(\.html)?\/?$/i.test(window.location.pathname || "/") ? "jobs" : "calendar";
+    if (!API) return "calendar";   // the artifact has only the calendar
+    var p = window.location.pathname || "/";
+    if (/^\/jobs(\.html)?\/?$/i.test(p)) return "jobs";
+    if (/^\/directory(\.html)?\/?$/i.test(p)) return "directory";
+    return "calendar";
   })();
 
   var jobs = [];
+  var biz = [];
 
   var events = readJSON("event-data", []);
   events = (events || []).filter(function (e) { return e && e.date; });
@@ -1203,7 +1308,12 @@
     var editing = (window.location.hash || "").toLowerCase() === "#manage";
     $("manage").hidden = !editing || ROUTE !== "calendar";
     $("manage-jobs").hidden = !editing || ROUTE !== "jobs";
-    if (!editing) { $("drawer").hidden = true; $("jobs-drawer").hidden = true; }
+    $("manage-dir").hidden = !editing || ROUTE !== "directory";
+    if (!editing) {
+      $("drawer").hidden = true;
+      $("jobs-drawer").hidden = true;
+      $("dir-drawer").hidden = true;
+    }
   }
   syncEditorAccess();
   window.addEventListener("hashchange", syncEditorAccess);
@@ -1676,25 +1786,342 @@
     });
   }
 
-  /* ---------- which section is showing ---------- */
-  function applyRoute() {
-    var jobsOn = ROUTE === "jobs";
-    $("tab-jobs").hidden = !API;
-    $("sub-cal").hidden = jobsOn;   // subscribing is a calendar thing
-    $("view-jobs").hidden = !jobsOn;
-    $("view-calendar").hidden = jobsOn;
-    $("tab-calendar").className = "sitetab" + (jobsOn ? "" : " is-on");
-    $("tab-jobs").className = "sitetab" + (jobsOn ? " is-on" : "");
-    if (jobsOn) {
-      $("tab-jobs").setAttribute("aria-current", "page");
-      $("tab-calendar").removeAttribute("aria-current");
-      document.title = "GPDMV — Jobs";
-      $("foot-line").innerHTML = 'GPDMV — Presented by Jahnvi Mehta · To post a job, call or text ' +
-        '<a class="tel" href="tel:+12144637811">214-463-7811</a>';
-    } else {
-      $("tab-calendar").setAttribute("aria-current", "page");
-      $("tab-jobs").removeAttribute("aria-current");
+  /* ---------- directory ---------- */
+  // The trades the member businesses actually fall into. A business keeps the
+  // words its owner used in "type"; this is only how the page groups them.
+  var TRADES = {
+    food:       "Restaurants & Food Shops",
+    catering:   "Catering & Home Food",
+    shopping:   "Clothing, Jewellery & Gifts",
+    tailoring:  "Tailoring & Alterations",
+    events:     "Events & Weddings",
+    photo:      "Photography & Video",
+    arts:       "Music, Dance & Arts",
+    classes:    "Classes & Coaching",
+    realestate: "Real Estate",
+    finance:    "Finance, Tax & Insurance",
+    health:     "Health & Wellness",
+    home:       "Home Services",
+    tech:       "Technology & Web",
+    religious:  "Religious Services",
+    other:      "Other"
+  };
+  var TRADE_KEYS = Object.keys(TRADES);
+
+  function trade(k) { return TRADES[k] ? k : "other"; }
+
+  // Review links rather than pulled-in ratings: these always show what Google
+  // and Yelp have right now, cost nothing, and need no account.
+  function reviewLinks(b) {
+    var where = (b.address || "").replace(/\s+/g, " ").trim();
+    var q = (b.name + " " + where).trim();
+    var g = "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(q);
+    var city = where ? where.split(",").slice(-2).join(",").trim() : "Northern Virginia";
+    var y = "https://www.yelp.com/search?find_desc=" + encodeURIComponent(b.name) +
+            "&find_loc=" + encodeURIComponent(city);
+    return { google: g, yelp: y };
+  }
+
+  function telHref(p) { return "tel:" + String(p || "").replace(/[^0-9+]/g, ""); }
+
+  function bizCard(b) {
+    var r = reviewLinks(b);
+    var facts = "";
+    if (b.phone) facts += '<a class="bz-fact" href="' + esc(telHref(b.phone)) + '"><b>Phone</b>' + esc(b.phone) + "</a>";
+    if (b.email) facts += '<a class="bz-fact" href="mailto:' + esc(b.email) + '"><b>Email</b>' + esc(b.email) + "</a>";
+    if (b.address) {
+      facts += '<a class="bz-fact" href="https://www.google.com/maps/search/?api=1&query=' +
+        esc(encodeURIComponent(b.address)) + '" target="_blank" rel="noopener noreferrer"><b>Where</b>' + esc(b.address) + "</a>";
     }
+    if (b.hours) facts += '<span class="bz-fact"><b>Hours</b>' + esc(b.hours) + "</span>";
+
+    return '<li class="bz" data-id="' + esc(b.id) + '">' +
+      '<button type="button" class="bz-head" aria-expanded="false">' +
+        '<span class="bz-name">' + esc(b.name) + "</span>" +
+        (b.type ? '<span class="bz-type">' + esc(b.type) + "</span>" : "") +
+        '<span class="bz-chev" aria-hidden="true">›</span>' +
+      "</button>" +
+      '<div class="bz-body" hidden>' +
+        (b.person ? '<p class="bz-person">Run by ' + esc(b.person) + "</p>" : "") +
+        (facts ? '<div class="bz-facts">' + facts + "</div>" : "") +
+        (b.notes ? '<p class="bz-notes">' + esc(b.notes) + "</p>" : "") +
+        '<div class="bz-reviews">' +
+          '<a class="btn quiet" href="' + esc(r.google) + '" target="_blank" rel="noopener noreferrer">Reviews on Google</a>' +
+          '<a class="btn quiet" href="' + esc(r.yelp) + '" target="_blank" rel="noopener noreferrer">Reviews on Yelp</a>' +
+        "</div>" +
+      "</div>" +
+    "</li>";
+  }
+
+  var dirFilter = "";   // the trade chip in use, "" for all
+
+  function dirMatches(b, q) {
+    if (dirFilter && trade(b.cat) !== dirFilter) return false;
+    if (!q) return true;
+    var hay = [b.name, b.type, b.person, b.address, b.notes, TRADES[trade(b.cat)]]
+      .filter(Boolean).join(" ").toLowerCase();
+    return hay.indexOf(q) > -1;
+  }
+
+  function byName(a, b) {
+    var x = (a.name || "").toLowerCase(), y = (b.name || "").toLowerCase();
+    return x < y ? -1 : x > y ? 1 : 0;
+  }
+
+  function renderDirChips() {
+    var counts = {};
+    biz.forEach(function (b) { var k = trade(b.cat); counts[k] = (counts[k] || 0) + 1; });
+    var html = '<button type="button" class="chip' + (dirFilter ? "" : " on") + '" data-trade="">All ' +
+      '<span>' + biz.length + "</span></button>";
+    TRADE_KEYS.forEach(function (k) {
+      if (!counts[k]) return;
+      html += '<button type="button" class="chip' + (dirFilter === k ? " on" : "") + '" data-trade="' + k + '">' +
+        esc(TRADES[k]) + " <span>" + counts[k] + "</span></button>";
+    });
+    $("dir-chips").innerHTML = html;
+  }
+
+  function renderDirectory() {
+    var q = ($("dir-q").value || "").toLowerCase().trim();
+    var mode = $("dir-sort").value;
+    var list = biz.filter(function (b) { return dirMatches(b, q); });
+
+    $("dir-count").textContent = list.length === biz.length
+      ? biz.length + " businesses"
+      : list.length + " of " + biz.length + " businesses";
+
+    if (!list.length) {
+      $("dir-body").innerHTML = '<p class="dir-empty">Nothing matches that. Try a trade, a town or part of a name.</p>';
+      return;
+    }
+
+    if (mode === "name" || mode === "new") {
+      var flat = list.slice().sort(mode === "name" ? byName : function (a, b) {
+        return (b.added || "") < (a.added || "") ? -1 : 1;
+      });
+      $("dir-body").innerHTML = '<ul class="bz-list">' + flat.map(bizCard).join("") + "</ul>";
+      return;
+    }
+
+    // Grouped by trade, each group in its own block.
+    var groups = {};
+    list.forEach(function (b) {
+      var k = trade(b.cat);
+      (groups[k] = groups[k] || []).push(b);
+    });
+    var html = "";
+    TRADE_KEYS.forEach(function (k) {
+      if (!groups[k]) return;
+      html += '<section class="bz-group"><h3>' + esc(TRADES[k]) +
+        ' <span>' + groups[k].length + "</span></h3>" +
+        '<ul class="bz-list">' + groups[k].sort(byName).map(bizCard).join("") + "</ul></section>";
+    });
+    $("dir-body").innerHTML = html;
+  }
+
+  $("dir-q").addEventListener("input", renderDirectory);
+  $("dir-sort").addEventListener("change", renderDirectory);
+
+  $("dir-chips").addEventListener("click", function (e) {
+    var c = e.target.closest("[data-trade]");
+    if (!c) return;
+    dirFilter = c.getAttribute("data-trade");
+    renderDirChips();
+    renderDirectory();
+  });
+
+  $("dir-body").addEventListener("click", function (e) {
+    var head = e.target.closest(".bz-head");
+    if (!head) return;
+    var open = head.getAttribute("aria-expanded") === "true";
+    head.setAttribute("aria-expanded", open ? "false" : "true");
+    head.parentNode.querySelector(".bz-body").hidden = open;
+  });
+
+  /* ---------- directory editor ---------- */
+  var editingBizId = null;
+
+  function setDirStatus(msg, kind) {
+    var el = $("dir-status");
+    el.textContent = msg || "";
+    el.className = "status" + (kind ? " " + kind : "");
+  }
+
+  function fillBizForm(b) {
+    $("b-name").value = b ? b.name || "" : "";
+    $("b-cat").value = b ? trade(b.cat) : "other";
+    $("b-type").value = b ? b.type || "" : "";
+    $("b-person").value = b ? b.person || "" : "";
+    $("b-phone").value = b ? b.phone || "" : "";
+    $("b-email").value = b ? b.email || "" : "";
+    $("b-address").value = b ? b.address || "" : "";
+    $("b-hours").value = b ? b.hours || "" : "";
+    $("b-notes").value = b ? b.notes || "" : "";
+    editingBizId = b ? b.id : null;
+    $("dir-save-btn").textContent = b ? "Save changes" : "Add business";
+  }
+
+  function renderBizManageList() {
+    var q = ($("dir-filter").value || "").toLowerCase().trim();
+    var list = biz.slice().sort(byName).filter(function (b) {
+      if (!q) return true;
+      return [b.name, b.person, b.type].filter(Boolean).join(" ").toLowerCase().indexOf(q) > -1;
+    });
+    $("dir-manage-list").innerHTML = list.length ? list.map(function (b) {
+      return '<li style="border-left-color:var(--indigo)">' +
+        '<span class="mn"><b>' + esc(b.name) + "</b><span>" +
+          esc([TRADES[trade(b.cat)], b.person].filter(Boolean).join(" · ")) + "</span></span>" +
+        '<button type="button" class="mini" data-bedit="' + esc(b.id) + '">Edit</button>' +
+        '<button type="button" class="mini" data-bdel="' + esc(b.id) + '">Delete</button>' +
+      "</li>";
+    }).join("") : '<li style="border-left-color:var(--line)"><span class="mn"><b>Nothing here</b><span>No business matches that.</span></span></li>';
+  }
+
+  function saveBiz(next, okMsg) {
+    var btn = $("dir-save-btn");
+    btn.disabled = true;
+    setDirStatus("Saving…");
+    fetch(API + "/directory", {
+      method: "PUT",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ businesses: next })
+    }).then(function (r) {
+      if (r.status === 401) throw { code: "not_granted" };
+      if (!r.ok) throw new Error("save " + r.status);
+      return r.json();
+    }).then(function () {
+      biz = next;
+      renderDirChips(); renderDirectory(); renderBizManageList(); fillBizForm(null);
+      setDirStatus(okMsg + " Everyone with the link sees it now.", "ok");
+      btn.disabled = false;
+    }).catch(function (err) {
+      btn.disabled = false;
+      if (err && err.code === "not_granted") {
+        CAN_EDIT = false;
+        setDirStatus("Your sign-in has expired. Enter the password again above.", "err");
+        $("dir-login-row").hidden = false;
+        $("dir-pw").focus();
+      } else {
+        setDirStatus("That didn't save. Check your connection and try again.", "err");
+      }
+    });
+  }
+
+  $("manage-dir").addEventListener("click", function () {
+    if (!$("b-cat").options.length) {
+      TRADE_KEYS.forEach(function (k) {
+        var o = document.createElement("option");
+        o.value = k; o.textContent = TRADES[k];
+        $("b-cat").appendChild(o);
+      });
+    }
+    renderBizManageList();
+    fillBizForm(null);
+    setDirStatus("");
+    $("dir-login-row").hidden = !(API && !CAN_EDIT);
+    $("dir-drawer").hidden = false;
+    if (API && !CAN_EDIT) $("dir-pw").focus(); else $("b-name").focus();
+  });
+  $("close-dir").addEventListener("click", function () { $("dir-drawer").hidden = true; });
+  $("dir-drawer").addEventListener("click", function (e) {
+    if (e.target === $("dir-drawer")) $("dir-drawer").hidden = true;
+  });
+  $("dir-filter").addEventListener("input", renderBizManageList);
+  $("dir-reset-btn").addEventListener("click", function () { fillBizForm(null); setDirStatus(""); });
+
+  $("dir-manage-list").addEventListener("click", function (e) {
+    var ed = e.target.closest("[data-bedit]");
+    if (ed) {
+      var b = biz.filter(function (x) { return x.id === ed.getAttribute("data-bedit"); })[0];
+      if (b) { fillBizForm(b); setDirStatus("Editing “" + b.name + "”."); $("b-name").focus(); }
+      return;
+    }
+    var del = e.target.closest("[data-bdel]");
+    if (!del) return;
+    var id = del.getAttribute("data-bdel");
+    var gone = biz.filter(function (x) { return x.id === id; })[0];
+    if (!gone || !window.confirm("Remove “" + gone.name + "” from the directory?")) return;
+    saveBiz(biz.filter(function (x) { return x.id !== id; }), "Removed.");
+  });
+
+  $("dir-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!$("b-name").value.trim()) {
+      setDirStatus("A business name is needed.", "err");
+      return;
+    }
+    var existing = editingBizId ? biz.filter(function (x) { return x.id === editingBizId; })[0] : null;
+    var rec = {
+      id: editingBizId || ("b" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
+      name: $("b-name").value.trim(),
+      cat: $("b-cat").value,
+      type: $("b-type").value.trim(),
+      person: $("b-person").value.trim(),
+      phone: $("b-phone").value.trim(),
+      email: $("b-email").value.trim(),
+      address: $("b-address").value.trim(),
+      hours: $("b-hours").value.trim(),
+      notes: $("b-notes").value,
+      added: (existing && existing.added) || todayISO()
+    };
+    var next = editingBizId
+      ? biz.map(function (x) { return x.id === editingBizId ? rec : x; })
+      : biz.concat([rec]);
+    saveBiz(next, editingBizId ? "Saved." : "Added.");
+  });
+
+  if (API) {
+    $("dir-login-row").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var pw = $("dir-pw").value;
+      if (!pw) return;
+      setDirStatus("Checking…");
+      fetch(API + "/login", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: pw })
+      }).then(function (r) {
+        $("dir-pw").value = "";
+        if (r.ok) {
+          CAN_EDIT = true;
+          $("dir-login-row").hidden = true;
+          setDirStatus("Signed in. You can edit the directory now.", "ok");
+        } else {
+          setDirStatus("That password is not right.", "err");
+        }
+      }).catch(function () {
+        setDirStatus("Could not reach the server. Check your connection.", "err");
+      });
+    });
+  }
+
+  /* ---------- which section is showing ---------- */
+  var SECTIONS = {
+    calendar:  { tab: "tab-calendar",  view: "view-calendar",  title: "GPDMV", foot: "To add your event" },
+    jobs:      { tab: "tab-jobs",      view: "view-jobs",      title: "GPDMV — Jobs", foot: "To post a job" },
+    directory: { tab: "tab-directory", view: "view-directory", title: "GPDMV — Directory", foot: "To be listed" }
+  };
+
+  function applyRoute() {
+    $("tab-jobs").hidden = !API;
+    $("tab-directory").hidden = !API;
+    $("sub-cal").hidden = ROUTE !== "calendar";   // subscribing is a calendar thing
+
+    Object.keys(SECTIONS).forEach(function (k) {
+      var s = SECTIONS[k];
+      var on = k === ROUTE;
+      $(s.view).hidden = !on;
+      $(s.tab).className = "sitetab" + (on ? " is-on" : "");
+      if (on) $(s.tab).setAttribute("aria-current", "page");
+      else $(s.tab).removeAttribute("aria-current");
+    });
+
+    var here = SECTIONS[ROUTE] || SECTIONS.calendar;
+    document.title = here.title;
+    $("foot-line").innerHTML = "GPDMV — Presented by Jahnvi Mehta · " + here.foot +
+      ', call or text <a class="tel" href="tel:+12144637811">214-463-7811</a>';
   }
   applyRoute();
 
@@ -1715,9 +2142,28 @@
       });
   }
 
+  function bootDirectory() {
+    fetch(API + "/directory", { credentials: "same-origin" })
+      .then(function (r) { if (!r.ok) throw new Error("load " + r.status); return r.json(); })
+      .then(function (data) {
+        biz = (data.businesses || []).filter(function (b) { return b && b.name; });
+        CAN_EDIT = !!data.canEdit;
+        renderDirChips();
+        renderDirectory();
+        if ($("boot-note")) $("boot-note").hidden = true;
+      })
+      .catch(function () {
+        if ($("boot-note")) {
+          $("boot-note").hidden = false;
+          $("boot-note").textContent = "The directory could not load just now. Please refresh the page.";
+        }
+      });
+  }
+
   function boot() {
     if (!API) { renderAll(); return; }
     if (ROUTE === "jobs") { bootJobs(); return; }
+    if (ROUTE === "directory") { bootDirectory(); return; }
     // Server-backed: the page ships empty and fills from the API.
     apiLoad().then(function (data) {
       events = (data.events || []).filter(function (e) { return e && e.date; });
