@@ -32,7 +32,8 @@
   </header>
 
   <nav class="sitenav" aria-label="Sections">
-    <a class="sitetab is-on" href="/calendar" aria-current="page">Calendar</a>
+    <a class="sitetab" id="tab-calendar" href="/calendar">Calendar</a>
+    <a class="sitetab" id="tab-jobs" href="/jobs" hidden>Jobs</a>
   </nav>
 
   <div class="drawer" id="sub-drawer" hidden>
@@ -90,8 +91,19 @@
     </div>
   </div>
 
-  <p class="boot-note" id="boot-note" hidden>Loading events…</p>
+  <p class="boot-note" id="boot-note" hidden>Loading…</p>
 
+  <div id="view-jobs" hidden>
+    <section class="panel jobs-panel">
+      <div class="jobs-head">
+        <h2>Jobs in the community</h2>
+        <p class="jobs-sub">Openings shared by GPDMV members. To put one up, call or text <a class="tel" href="tel:+12144637811">214-463-7811</a>.</p>
+      </div>
+      <ul class="job-list" id="job-list"></ul>
+    </section>
+  </div>
+
+  <div id="view-calendar">
   <main class="layout">
     <section class="panel">
       <div class="cal-head">
@@ -118,11 +130,13 @@
     <h2>Coming up</h2>
     <ul class="up-list" id="up-list"></ul>
   </section>
+  </div>
 
   <footer class="foot" id="foot">
-    <p>GPDMV — Presented by Jahnvi Mehta · To add your event, call or text <a class="tel" href="tel:+12144637811">214-463-7811</a></p>
+    <p id="foot-line">GPDMV — Presented by Jahnvi Mehta · To add your event, call or text <a class="tel" href="tel:+12144637811">214-463-7811</a></p>
     <span class="spacer" style="flex:1"></span>
     <button class="linky" id="manage" hidden>Manage events</button>
+    <button class="linky" id="manage-jobs" hidden>Manage jobs</button>
   </footer>
 </div>
 
@@ -236,6 +250,82 @@
         <span class="spacer"></span>
       </div>
       <p class="status" id="status"></p>
+    </form>
+  </div>
+</div>
+
+<div class="drawer" id="jobs-drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="jobs-sheet-title">
+    <div class="sheet-head">
+      <h2 id="jobs-sheet-title">Manage jobs</h2>
+      <span class="spacer" style="flex:1"></span>
+      <button class="mini" id="close-jobs">Close</button>
+    </div>
+    <form class="login-row" id="job-login-row" hidden>
+      <label for="job-pw">Editor password</label>
+      <input id="job-pw" type="password" autocomplete="current-password" placeholder="Password">
+      <button type="submit" class="btn primary">Sign in</button>
+    </form>
+
+    <p class="sheet-note">Paste the posting straight into Details — line breaks are kept. A posting disappears on its own after its closing date, or 60 days after you add it if there is no closing date.</p>
+
+    <ul class="manage-list" id="job-manage-list"></ul>
+
+    <form id="job-form" autocomplete="off">
+      <div class="field">
+        <label for="j-title">Role</label>
+        <input id="j-title" name="title" required maxlength="90" placeholder="Senior Data Analyst">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="j-company">Company</label>
+          <input id="j-company" name="company" required maxlength="90" placeholder="ASM Research">
+        </div>
+        <div class="field">
+          <label for="j-type">Type</label>
+          <select id="j-type" name="jobType">
+            <option value="Full-time">Full-time</option>
+            <option value="Contract">Contract</option>
+            <option value="Part-time">Part-time</option>
+            <option value="Internship">Internship</option>
+          </select>
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="j-location">Location</label>
+          <input id="j-location" name="location" maxlength="90" placeholder="Fairfax, VA · hybrid">
+        </div>
+        <div class="field">
+          <label for="j-closes">Closes <span class="hint">(optional)</span></label>
+          <input id="j-closes" name="closes" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label for="j-details">Details</label>
+        <textarea id="j-details" name="details" rows="6" maxlength="4000" placeholder="Paste the posting here — responsibilities, requirements, pay range, anything the member sent."></textarea>
+      </div>
+      <div class="field">
+        <label for="j-apply">Apply link <span class="hint">(optional)</span></label>
+        <input id="j-apply" name="applyUrl" maxlength="300" placeholder="https://company.com/careers/12345">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="j-email">Contact email <span class="hint">(optional)</span></label>
+          <input id="j-email" name="email" maxlength="120" placeholder="hiring@company.com">
+        </div>
+        <div class="field">
+          <label for="j-phone">Contact phone <span class="hint">(optional)</span></label>
+          <input id="j-phone" name="phone" maxlength="40" placeholder="703-555-0142">
+        </div>
+      </div>
+
+      <div class="sheet-actions">
+        <button type="submit" class="btn primary" id="job-save-btn">Add job</button>
+        <button type="button" class="btn quiet" id="job-reset-btn">Clear form</button>
+        <span class="spacer"></span>
+      </div>
+      <p class="status" id="job-status"></p>
     </form>
   </div>
 </div>
@@ -370,6 +460,15 @@
   var API = (typeof window.GPDMV_API === "string" && window.GPDMV_API) || null;
   var CAN_EDIT = !API;   // on claude.ai the platform decides; on the web the server does
   var AUDIT = [];
+
+  // One page, two sections. The address decides which one is showing, so
+  // /calendar and /jobs are real links people can send each other.
+  var ROUTE = (function () {
+    if (!API) return "calendar";   // the artifact has no second section
+    return /^\/jobs(\/|$)/i.test(window.location.pathname || "/") ? "jobs" : "calendar";
+  })();
+
+  var jobs = [];
 
   var events = readJSON("event-data", []);
   events = (events || []).filter(function (e) { return e && e.date; });
@@ -1102,8 +1201,9 @@
 
   function syncEditorAccess() {
     var editing = (window.location.hash || "").toLowerCase() === "#manage";
-    $("manage").hidden = !editing;
-    if (!editing) $("drawer").hidden = true;
+    $("manage").hidden = !editing || ROUTE !== "calendar";
+    $("manage-jobs").hidden = !editing || ROUTE !== "jobs";
+    if (!editing) { $("drawer").hidden = true; $("jobs-drawer").hidden = true; }
   }
   syncEditorAccess();
   window.addEventListener("hashchange", syncEditorAccess);
@@ -1362,8 +1462,262 @@
     });
   }
 
+  /* ---------- jobs ---------- */
+  // A posting comes down by itself: on its closing date if it has one, and
+  // otherwise 60 days after it went up, so the board never quietly goes stale.
+  var JOB_LIFE = 60;
+
+  function jobLive(j) {
+    if (!j) return false;
+    var today = todayISO();
+    if (j.closes) return j.closes >= today;
+    if (!j.posted) return true;
+    return dayCount(today) - dayCount(j.posted) <= JOB_LIFE;
+  }
+
+  function safeUrl(u) { return /^https?:\/\//i.test(u || "") ? u : ""; }
+
+  function shortDate(isoStr) {
+    var d = parseISO(isoStr);
+    return d ? MONTHS[d.getMonth()].slice(0, 3) + " " + d.getDate() : "";
+  }
+
+  function jobCard(j) {
+    var where = [j.company, j.location].filter(Boolean).join(" · ");
+    var apply = safeUrl(j.applyUrl);
+    var acts = "";
+    if (apply) acts += '<a class="btn primary" href="' + esc(apply) + '" target="_blank" rel="noopener noreferrer">Apply</a>';
+    if (j.email) acts += '<a class="btn quiet" href="mailto:' + esc(j.email) + '">Email</a>';
+    if (j.phone) acts += '<a class="btn quiet" href="tel:' + esc(j.phone.replace(/[^0-9+]/g, "")) + '">Call or text</a>';
+    if (!acts) acts = '<a class="btn quiet" href="tel:+12144637811">Ask GPDMV</a>';
+
+    var foot = [];
+    if (j.posted) foot.push("Posted " + shortDate(j.posted));
+    if (j.closes) foot.push("Closes " + shortDate(j.closes));
+
+    return '<li class="job">' +
+      '<div class="job-top"><h3>' + esc(j.title) + "</h3>" +
+        (j.jobType ? '<span class="job-type">' + esc(j.jobType) + "</span>" : "") + "</div>" +
+      (where ? '<p class="job-meta">' + esc(where) + "</p>" : "") +
+      (j.details ? '<p class="job-details">' + esc(j.details) + "</p>" : "") +
+      '<div class="job-actions">' + acts + "</div>" +
+      (foot.length ? '<p class="job-foot">' + foot.join(" · ") + "</p>" : "") +
+    "</li>";
+  }
+
+  function renderJobs() {
+    var live = jobs.filter(jobLive).sort(function (a, b) {
+      return (b.posted || "") < (a.posted || "") ? -1 : 1;
+    });
+    $("job-list").innerHTML = live.length
+      ? live.map(jobCard).join("")
+      : '<li class="job empty"><h3>No openings posted right now</h3>' +
+        '<p class="job-details">When a member shares a role, it goes up here. To put one up, call or text ' +
+        '<a class="tel" href="tel:+12144637811">214-463-7811</a>.</p></li>';
+  }
+
+  function renderJobManageList() {
+    var sorted = jobs.slice().sort(function (a, b) {
+      return (b.posted || "") < (a.posted || "") ? -1 : 1;
+    });
+    $("job-manage-list").innerHTML = sorted.length ? sorted.map(function (j) {
+      var note = jobLive(j) ? (j.closes ? "closes " + shortDate(j.closes) : "posted " + shortDate(j.posted)) : "expired — hidden";
+      return '<li style="border-left-color:var(' + (jobLive(j) ? "--moss" : "--line-strong") + ')">' +
+        '<span class="mn"><b>' + esc(j.title) + "</b><span>" + esc([j.company, note].filter(Boolean).join(" · ")) + "</span></span>" +
+        '<button type="button" class="mini" data-jedit="' + esc(j.id) + '">Edit</button>' +
+        '<button type="button" class="mini" data-jdel="' + esc(j.id) + '">Delete</button>' +
+      "</li>";
+    }).join("") : '<li style="border-left-color:var(--line)"><span class="mn"><b>No jobs yet</b><span>Add the first one below.</span></span></li>';
+  }
+
+  var editingJobId = null;
+
+  function setJobStatus(msg, kind) {
+    var el = $("job-status");
+    el.textContent = msg || "";
+    el.className = "status" + (kind ? " " + kind : "");
+  }
+
+  function fillJobForm(j) {
+    $("j-title").value = j ? j.title || "" : "";
+    $("j-company").value = j ? j.company || "" : "";
+    $("j-type").value = j && j.jobType ? j.jobType : "Full-time";
+    $("j-location").value = j ? j.location || "" : "";
+    $("j-closes").value = j ? j.closes || "" : "";
+    $("j-details").value = j ? j.details || "" : "";
+    $("j-apply").value = j ? j.applyUrl || "" : "";
+    $("j-email").value = j ? j.email || "" : "";
+    $("j-phone").value = j ? j.phone || "" : "";
+    editingJobId = j ? j.id : null;
+    $("job-save-btn").textContent = j ? "Save changes" : "Add job";
+  }
+
+  function apiSaveJobs(list) {
+    return fetch(API + "/jobs", {
+      method: "PUT",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jobs: list })
+    }).then(function (r) {
+      if (r.status === 401) throw { code: "not_granted" };
+      if (!r.ok) throw new Error("save " + r.status);
+      return r.json();
+    });
+  }
+
+  function saveJobs(next, okMsg) {
+    var btn = $("job-save-btn");
+    btn.disabled = true;
+    setJobStatus("Saving…");
+    apiSaveJobs(next)
+      .then(function () {
+        jobs = next;
+        renderJobs(); renderJobManageList(); fillJobForm(null);
+        setJobStatus(okMsg + " Everyone with the link sees it now.", "ok");
+        btn.disabled = false;
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        if (err && err.code === "not_granted") {
+          CAN_EDIT = false;
+          setJobStatus("Your sign-in has expired. Enter the password again above.", "err");
+          $("job-login-row").hidden = false;
+          $("job-pw").focus();
+        } else {
+          setJobStatus("That didn't save. Check your connection and try again.", "err");
+        }
+      });
+  }
+
+  $("manage-jobs").addEventListener("click", function () {
+    renderJobManageList();
+    fillJobForm(null);
+    setJobStatus("");
+    $("job-login-row").hidden = !(API && !CAN_EDIT);
+    $("jobs-drawer").hidden = false;
+    if (API && !CAN_EDIT) $("job-pw").focus(); else $("j-title").focus();
+  });
+  $("close-jobs").addEventListener("click", function () { $("jobs-drawer").hidden = true; });
+  $("jobs-drawer").addEventListener("click", function (e) {
+    if (e.target === $("jobs-drawer")) $("jobs-drawer").hidden = true;
+  });
+  $("job-reset-btn").addEventListener("click", function () { fillJobForm(null); setJobStatus(""); });
+
+  $("job-manage-list").addEventListener("click", function (e) {
+    var ed = e.target.closest("[data-jedit]");
+    if (ed) {
+      var j = jobs.filter(function (x) { return x.id === ed.getAttribute("data-jedit"); })[0];
+      if (j) { fillJobForm(j); setJobStatus("Editing “" + j.title + "”."); $("j-title").focus(); }
+      return;
+    }
+    var del = e.target.closest("[data-jdel]");
+    if (!del) return;
+    var id = del.getAttribute("data-jdel");
+    var gone = jobs.filter(function (x) { return x.id === id; })[0];
+    if (!gone || !window.confirm("Remove “" + gone.title + "” from the jobs page?")) return;
+    saveJobs(jobs.filter(function (x) { return x.id !== id; }), "Removed.");
+  });
+
+  $("job-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    if (!$("j-title").value.trim() || !$("j-company").value.trim()) {
+      setJobStatus("A role and a company are needed.", "err");
+      return;
+    }
+    var existing = editingJobId
+      ? jobs.filter(function (x) { return x.id === editingJobId; })[0]
+      : null;
+
+    var rec = {
+      id: editingJobId || ("j" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6)),
+      kind: "opening",   // room for member profiles later without moving anything
+      title: $("j-title").value.trim(),
+      company: $("j-company").value.trim(),
+      jobType: $("j-type").value,
+      location: $("j-location").value.trim(),
+      details: $("j-details").value,
+      applyUrl: $("j-apply").value.trim(),
+      email: $("j-email").value.trim(),
+      phone: $("j-phone").value.trim(),
+      closes: $("j-closes").value || "",
+      posted: (existing && existing.posted) || todayISO()
+    };
+
+    var next = editingJobId
+      ? jobs.map(function (x) { return x.id === editingJobId ? rec : x; })
+      : jobs.concat([rec]);
+
+    saveJobs(next, editingJobId ? "Saved." : "Posted.");
+  });
+
+  if (API) {
+    $("job-login-row").addEventListener("submit", function (e) {
+      e.preventDefault();
+      var pw = $("job-pw").value;
+      if (!pw) return;
+      setJobStatus("Checking…");
+      fetch(API + "/login", {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: pw })
+      }).then(function (r) {
+        $("job-pw").value = "";
+        if (r.ok) {
+          CAN_EDIT = true;
+          $("job-login-row").hidden = true;
+          setJobStatus("Signed in. You can post jobs now.", "ok");
+        } else {
+          setJobStatus("That password is not right.", "err");
+        }
+      }).catch(function () {
+        setJobStatus("Could not reach the server. Check your connection.", "err");
+      });
+    });
+  }
+
+  /* ---------- which section is showing ---------- */
+  function applyRoute() {
+    var jobsOn = ROUTE === "jobs";
+    $("tab-jobs").hidden = !API;
+    $("sub-cal").hidden = jobsOn;   // subscribing is a calendar thing
+    $("view-jobs").hidden = !jobsOn;
+    $("view-calendar").hidden = jobsOn;
+    $("tab-calendar").className = "sitetab" + (jobsOn ? "" : " is-on");
+    $("tab-jobs").className = "sitetab" + (jobsOn ? " is-on" : "");
+    if (jobsOn) {
+      $("tab-jobs").setAttribute("aria-current", "page");
+      $("tab-calendar").removeAttribute("aria-current");
+      document.title = "GPDMV — Jobs";
+      $("foot-line").innerHTML = 'GPDMV — Presented by Jahnvi Mehta · To post a job, call or text ' +
+        '<a class="tel" href="tel:+12144637811">214-463-7811</a>';
+    } else {
+      $("tab-calendar").setAttribute("aria-current", "page");
+      $("tab-jobs").removeAttribute("aria-current");
+    }
+  }
+  applyRoute();
+
+  function bootJobs() {
+    fetch(API + "/jobs", { credentials: "same-origin" })
+      .then(function (r) { if (!r.ok) throw new Error("load " + r.status); return r.json(); })
+      .then(function (data) {
+        jobs = (data.jobs || []).filter(function (j) { return j && j.title; });
+        CAN_EDIT = !!data.canEdit;
+        renderJobs();
+        if ($("boot-note")) $("boot-note").hidden = true;
+      })
+      .catch(function () {
+        if ($("boot-note")) {
+          $("boot-note").hidden = false;
+          $("boot-note").textContent = "The jobs page could not load just now. Please refresh the page.";
+        }
+      });
+  }
+
   function boot() {
     if (!API) { renderAll(); return; }
+    if (ROUTE === "jobs") { bootJobs(); return; }
     // Server-backed: the page ships empty and fills from the API.
     apiLoad().then(function (data) {
       events = (data.events || []).filter(function (e) { return e && e.date; });

@@ -162,7 +162,8 @@ if (WEB) {
   // and nothing is duplicated on disk.
   fs.writeFileSync(
     path.join(DIR, "..", "public", "_redirects"),
-    "/calendar  /index.html  200\n/calendar/  /index.html  200\n",
+    "/calendar  /index.html  200\n/calendar/  /index.html  200\n" +
+      "/jobs  /index.html  200\n/jobs/  /index.html  200\n",
     "utf8"
   );
 
