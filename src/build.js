@@ -132,17 +132,17 @@ if (WEB) {
     '<meta charset="utf-8">\n' +
     '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
     '<meta name="description" content="Every GPDMV community event in one place — Gujarati Parivaar of DMV, Northern Virginia.">\n' +
-    '<meta property="og:title" content="GPDMV Event Calendar">\n' +
+    '<meta property="og:title" content="GPDMV">\n' +
     '<meta property="og:description" content="Every GPDMV community event in one place.">\n' +
     '<meta property="og:type" content="website">\n' +
     '<meta property="og:url" content="https://gpdmv.com/">\n' +
-    '<meta property="og:site_name" content="GPDMV Event Calendar">\n' +
+    '<meta property="og:site_name" content="GPDMV">\n' +
     '<meta property="og:image" content="https://gpdmv.com/og.png">\n' +
     '<meta property="og:image:width" content="1200">\n' +
     '<meta property="og:image:height" content="630">\n' +
-    '<meta property="og:image:alt" content="GPDMV Event Calendar \u2014 every community event in one place">\n' +
+    '<meta property="og:image:alt" content="GPDMV \u2014 every community event in one place">\n' +
     '<meta name="twitter:card" content="summary_large_image">\n' +
-    '<meta name="twitter:title" content="GPDMV Event Calendar">\n' +
+    '<meta name="twitter:title" content="GPDMV">\n' +
     '<meta name="twitter:description" content="Every GPDMV community event in one place.">\n' +
     '<meta name="twitter:image" content="https://gpdmv.com/og.png">\n' +
     '<link rel="icon" href="/og.png">\n' +
