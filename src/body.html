@@ -108,7 +108,7 @@
     <section class="panel dir-panel">
       <div class="jobs-head">
         <h2>Community business directory</h2>
-        <p class="jobs-sub">Businesses run by GPDMV members. To be listed, call or text <a class="tel" href="tel:+12144637811">214-463-7811</a>.</p>
+        <p class="jobs-sub">Businesses run by GPDMV members. <button type="button" class="linky" id="add-biz">Add your business</button> — or call or text <a class="tel" href="tel:+12144637811">214-463-7811</a>.</p>
       </div>
 
       <div class="dir-controls">
@@ -363,6 +363,96 @@
   </div>
 </div>
 
+<div class="drawer" id="add-drawer" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="add-title">
+    <div class="sheet-head">
+      <h2 id="add-title">Add your business</h2>
+      <span class="spacer" style="flex:1"></span>
+      <button class="mini" id="close-add">Close</button>
+    </div>
+
+    <p class="sheet-note">The directory lists businesses run by members of the GPDMV WhatsApp group. Send the details here and they go to Jahnvi, who adds them to the page — nothing appears on the site until then.</p>
+
+    <form id="add-form" autocomplete="on">
+      <div class="row2">
+        <div class="field">
+          <label for="s-person">Your name <span class="req">required</span></label>
+          <input id="s-person" name="person" required maxlength="90" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="s-name">Business name <span class="req">required</span></label>
+          <input id="s-name" name="name" required maxlength="90" placeholder="Komal Caterers">
+        </div>
+      </div>
+      <div class="field">
+        <label for="s-type">What the business does <span class="hint">in a few words</span></label>
+        <input id="s-type" name="type" maxlength="120" placeholder="Jain and pure veg catering, sweets and tiffin">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="s-phone">Phone <span class="req">required</span></label>
+          <input id="s-phone" name="phone" required maxlength="40" inputmode="tel" autocomplete="tel" placeholder="(703) 555-0142">
+        </div>
+        <div class="field">
+          <label for="s-email">Email</label>
+          <input id="s-email" name="email" type="email" maxlength="120" autocomplete="email">
+        </div>
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="s-website">Website</label>
+          <input id="s-website" name="website" maxlength="200" placeholder="https://yourbusiness.com">
+        </div>
+        <div class="field">
+          <label for="s-social">Instagram or Facebook</label>
+          <input id="s-social" name="social" maxlength="200" placeholder="instagram.com/yourbusiness">
+        </div>
+      </div>
+      <div class="field">
+        <label for="s-address">Address <span class="hint">leave blank if you work from home or travel</span></label>
+        <input id="s-address" name="address" maxlength="160" autocomplete="street-address">
+      </div>
+      <div class="row2">
+        <div class="field">
+          <label for="s-area">Areas you serve</label>
+          <input id="s-area" name="area" maxlength="120" placeholder="Loudoun and Fairfax, travel across the DMV">
+        </div>
+        <div class="field">
+          <label for="s-hours">Hours</label>
+          <input id="s-hours" name="hours" maxlength="160" placeholder="Mon–Sat 9am – 7pm, or by appointment">
+        </div>
+      </div>
+      <div class="field">
+        <label for="s-offer">Anything special for GPDMV members <span class="hint">optional</span></label>
+        <input id="s-offer" name="offer" maxlength="200" placeholder="10% off for community members">
+      </div>
+      <div class="field">
+        <label for="s-notes">About the business</label>
+        <textarea id="s-notes" name="notes" rows="5" maxlength="2000" placeholder="What you offer, how long you have been doing it, anything a neighbour should know before calling."></textarea>
+      </div>
+      <div class="field">
+        <label for="s-wa">The phone number you use in the GPDMV WhatsApp group <span class="hint">only if it differs from above — it is how Jahnvi checks you are in the group, and it is never published</span></label>
+        <input id="s-wa" name="waPhone" maxlength="40" inputmode="tel">
+      </div>
+
+      <!-- Not shown to anyone; bots fill it in and give themselves away. -->
+      <div class="trap" aria-hidden="true">
+        <label for="s-company">Company</label>
+        <input id="s-company" name="company" tabindex="-1" autocomplete="off">
+      </div>
+
+      <label class="tick"><input type="checkbox" id="s-member" required> I am a member of the GPDMV WhatsApp group.</label>
+      <label class="tick"><input type="checkbox" id="s-consent" required> I am happy for these details to be shown publicly on gpdmv.com.</label>
+
+      <div class="sheet-actions">
+        <button type="submit" class="btn primary" id="add-send">Send for review</button>
+        <span class="spacer"></span>
+      </div>
+      <p class="status" id="add-status"></p>
+    </form>
+  </div>
+</div>
+
 <div class="drawer" id="dir-drawer" hidden>
   <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="dir-sheet-title">
     <div class="sheet-head">
@@ -375,6 +465,17 @@
       <input id="dir-pw" type="password" autocomplete="current-password" placeholder="Password">
       <button type="submit" class="btn primary">Sign in</button>
     </form>
+
+    <section class="vh" id="subs" hidden>
+      <button type="button" class="vh-toggle" id="subs-toggle" aria-expanded="true">
+        <span>Waiting to be added</span>
+        <span class="vh-count" id="subs-count"></span>
+      </button>
+      <div class="vh-body" id="subs-body">
+        <p class="sheet-note">Sent through the form on the directory page. Check the person is in the WhatsApp group, then put it in the form below with one tap and save.</p>
+        <ul class="sub-list" id="subs-list"></ul>
+      </div>
+    </section>
 
     <p class="sheet-note">Only the business name and a trade are needed — everything else shows when it is filled in.</p>
 
@@ -1318,6 +1419,7 @@
       $("jobs-drawer").hidden = true;
       $("dir-drawer").hidden = true;
     }
+    if ((window.location.hash || "").toLowerCase() !== "#add") $("add-drawer").hidden = true;
   }
   syncEditorAccess();
   window.addEventListener("hashchange", syncEditorAccess);
@@ -1368,6 +1470,10 @@
     if (e.key !== "Escape") return;
     $("drawer").hidden = true;
     $("save-drawer").hidden = true;
+    $("sub-drawer").hidden = true;
+    $("jobs-drawer").hidden = true;
+    $("dir-drawer").hidden = true;
+    $("add-drawer").hidden = true;
   });
   $("reset-btn").addEventListener("click", function () { fillForm(null); setStatus(""); });
 
@@ -1948,8 +2054,178 @@
     head.parentNode.querySelector(".bz-body").hidden = open;
   });
 
+  /* ---------- the public "add your business" form ---------- */
+  function openAdd() {
+    $("add-status").textContent = "";
+    $("add-status").className = "status";
+    $("add-drawer").hidden = false;
+    $("s-person").focus();
+  }
+
+  $("add-biz").addEventListener("click", openAdd);
+  $("close-add").addEventListener("click", function () { $("add-drawer").hidden = true; });
+  $("add-drawer").addEventListener("click", function (e) {
+    if (e.target === $("add-drawer")) $("add-drawer").hidden = true;
+  });
+  // /directory#add opens it straight away, so the link can go in the group.
+  if ((window.location.hash || "").toLowerCase() === "#add") openAdd();
+
+  $("add-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var note = $("add-status");
+    var btn = $("add-send");
+
+    var payload = {
+      person: $("s-person").value, name: $("s-name").value, type: $("s-type").value,
+      phone: $("s-phone").value, email: $("s-email").value, website: $("s-website").value,
+      social: $("s-social").value, address: $("s-address").value, area: $("s-area").value,
+      hours: $("s-hours").value, offer: $("s-offer").value, notes: $("s-notes").value,
+      waPhone: $("s-wa").value, company: $("s-company").value,
+      member: $("s-member").checked, consent: $("s-consent").checked
+    };
+
+    btn.disabled = true;
+    note.textContent = "Sending…";
+    note.className = "status";
+
+    fetch(API + "/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function (r) {
+      return r.json().then(function (d) { return { ok: r.ok, d: d }; });
+    }).then(function (res) {
+      btn.disabled = false;
+      if (!res.ok) {
+        note.textContent = (res.d && res.d.error) || "That didn't send. Please try again.";
+        note.className = "status err";
+        return;
+      }
+      $("add-form").reset();
+      note.textContent = "Thank you — your business is with Jahnvi. It goes on the page once she has checked it.";
+      note.className = "status ok";
+    }).catch(function () {
+      btn.disabled = false;
+      note.textContent = "Could not reach the site just now. Check your connection and try again.";
+      note.className = "status err";
+    });
+  });
+
   /* ---------- directory editor ---------- */
   var editingBizId = null;
+  var subs = [];
+
+  // The trade is a guess from what the member wrote; it is only a starting point.
+  var TRADE_HINTS = [
+    [/caterer|catering|tiffin|sweets|farsan|home food|cook/i, "catering"],
+    [/restaurant|cafe|café|pizza|liquor|grocery|bakery|food shop|dhaba/i, "food"],
+    [/cloth|boutique|saree|sari|jewel|gift|fashion|blouse/i, "shopping"],
+    [/tailor|alteration|stitch/i, "tailoring"],
+    [/event|wedding|decor|anchor|dj|venue|celebration/i, "events"],
+    [/photo|video|film|cinemat/i, "photo"],
+    [/music|dance|garba|sing|tabla|academy of performing|bollywood/i, "arts"],
+    [/tutor|coaching|class|learning|tennis|lesson|workshop/i, "classes"],
+    [/realtor|real estate|property|mortgage|broker/i, "realestate"],
+    [/insur|tax|account|financ|invest|book-?keep|cpa|notary/i, "finance"],
+    [/dentist|doctor|health|wellness|yoga|clinic|therap|nurse/i, "health"],
+    [/clean|hvac|plumb|electric|remodel|interior|architect|landscap|handyman|construct/i, "home"],
+    [/software|website|web|app|it |tech|digital|marketing|data/i, "tech"],
+    [/priest|pandit|shastri|puja|religio|astrolog/i, "religious"]
+  ];
+
+  function guessTrade(s) {
+    var hay = [s.type, s.name, s.notes].filter(Boolean).join(" ");
+    for (var i = 0; i < TRADE_HINTS.length; i++) {
+      if (TRADE_HINTS[i][0].test(hay)) return TRADE_HINTS[i][1];
+    }
+    return "other";
+  }
+
+  function renderSubs() {
+    var sec = $("subs");
+    if (!CAN_EDIT || !subs.length) { sec.hidden = true; return; }
+    sec.hidden = false;
+    $("subs-count").textContent = subs.length + (subs.length === 1 ? " waiting" : " waiting");
+    $("subs-list").innerHTML = subs.map(function (s) {
+      var rows = [
+        ["Member", s.person], ["Does", s.type], ["Phone", s.phone], ["Email", s.email],
+        ["Website", s.website], ["Social", s.social], ["Address", s.address],
+        ["Serves", s.area], ["Hours", s.hours], ["Offer", s.offer],
+        ["WhatsApp", s.waPhone], ["Sent from", s.from]
+      ].filter(function (r) { return r[1]; })
+        .map(function (r) { return "<dt>" + r[0] + "</dt><dd>" + esc(r[1]) + "</dd>"; }).join("");
+      return '<li class="sub">' +
+        '<div class="sub-top"><b>' + esc(s.name) + "</b><span>" + esc(stamp(Date.parse(s.at))) + "</span></div>" +
+        "<dl>" + rows + "</dl>" +
+        (s.notes ? '<p class="sub-notes">' + esc(s.notes) + "</p>" : "") +
+        '<div class="sub-acts">' +
+          '<button type="button" class="btn primary" data-use="' + esc(s.id) + '">Put in the form</button>' +
+          '<button type="button" class="btn quiet" data-drop="' + esc(s.id) + '">Turn down</button>' +
+        "</div></li>";
+    }).join("");
+  }
+
+  function saveSubs(next, after) {
+    fetch(API + "/submit", {
+      method: "PUT",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ submissions: next })
+    }).then(function (r) {
+      if (!r.ok) throw new Error("save");
+      subs = next;
+      renderSubs();
+      if (after) after();
+    }).catch(function () {
+      setDirStatus("That submission could not be cleared. Try again.", "err");
+    });
+  }
+
+  function loadSubs() {
+    if (!API || !CAN_EDIT) return;
+    fetch(API + "/submit", { credentials: "same-origin" })
+      .then(function (r) { return r.ok ? r.json() : { submissions: [] }; })
+      .then(function (d) { subs = d.submissions || []; renderSubs(); })
+      .catch(function () { /* the rest of the panel still works */ });
+  }
+
+  $("subs-toggle").addEventListener("click", function () {
+    var open = $("subs-toggle").getAttribute("aria-expanded") === "true";
+    $("subs-toggle").setAttribute("aria-expanded", open ? "false" : "true");
+    $("subs-body").hidden = open;
+  });
+
+  $("subs-list").addEventListener("click", function (e) {
+    var use = e.target.closest("[data-use]");
+    if (use) {
+      var s = subs.filter(function (x) { return x.id === use.getAttribute("data-use"); })[0];
+      if (!s) return;
+      var extra = [
+        s.notes || "",
+        s.website ? "Website: " + s.website : "",
+        s.social ? "Social: " + s.social : "",
+        s.offer ? "For GPDMV members: " + s.offer : "",
+        s.area ? "Serves: " + s.area : ""
+      ].filter(Boolean).join("\n\n");
+      fillBizForm({
+        id: null, name: s.name, cat: guessTrade(s), type: s.type, person: s.person,
+        phone: s.phone, email: s.email, address: s.address, hours: s.hours, notes: extra
+      });
+      editingBizId = null;
+      $("dir-save-btn").textContent = "Add business";
+      setDirStatus("Filled in from " + s.person + "'s request. Check it, then Add business — the request clears once it is saved.", "ok");
+      $("dir-form").setAttribute("data-from-sub", s.id);
+      $("b-name").scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+    var drop = e.target.closest("[data-drop]");
+    if (!drop) return;
+    var id = drop.getAttribute("data-drop");
+    var gone = subs.filter(function (x) { return x.id === id; })[0];
+    if (!gone || !window.confirm("Turn down “" + gone.name + "”? It will be removed from this list.")) return;
+    saveSubs(subs.filter(function (x) { return x.id !== id; }));
+  });
+
 
   function setDirStatus(msg, kind) {
     var el = $("dir-status");
@@ -2005,6 +2281,12 @@
       renderDirChips(); renderDirectory(); renderBizManageList(); fillBizForm(null);
       setDirStatus(okMsg + " Everyone with the link sees it now.", "ok");
       btn.disabled = false;
+      // A business added from a request takes that request off the list.
+      var fromSub = $("dir-form").getAttribute("data-from-sub");
+      if (fromSub) {
+        $("dir-form").removeAttribute("data-from-sub");
+        saveSubs(subs.filter(function (x) { return x.id !== fromSub; }));
+      }
     }).catch(function (err) {
       btn.disabled = false;
       if (err && err.code === "not_granted") {
@@ -2029,6 +2311,7 @@
     renderBizManageList();
     fillBizForm(null);
     setDirStatus("");
+    loadSubs();
     $("dir-login-row").hidden = !(API && !CAN_EDIT);
     $("dir-drawer").hidden = false;
     if (API && !CAN_EDIT) $("dir-pw").focus(); else $("b-name").focus();
@@ -2097,6 +2380,7 @@
         if (r.ok) {
           CAN_EDIT = true;
           $("dir-login-row").hidden = true;
+          loadSubs();
           setDirStatus("Signed in. You can edit the directory now.", "ok");
         } else {
           setDirStatus("That password is not right.", "err");

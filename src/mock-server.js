@@ -29,6 +29,7 @@ const SEC = (function () {
 
 let audit = [];
 let jobStore = { jobs: [] };
+let subStore = [];
 let dirStore = (() => {
   const p = path.join(__dirname, "..", "seed", "directory-data.json");
   return fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, "utf8")) : { businesses: [] };
@@ -89,6 +90,31 @@ http.createServer(async (req, res) => {
     store = { events: b.events, flyers: b.flyers || {}, history: (b.history || []).slice(0, 12) };
     audit.unshift({ts:Date.now(),kind:"save",ip:"203.0.113.9",country:"US",city:"Fairfax",agent:"Firefox on Windows"});
     return send(res, 200, { ok: true, events: store.events.length });
+  }
+
+  if (url === "/api/submit" && req.method === "POST") {
+    const b = await readBody(req);
+    if (!b) return send(res, 400, { error: "Bad request." });
+    if (String(b.company || "").trim()) return send(res, 200, { ok: true });
+    if (!b.name || !b.person || !b.phone) return send(res, 400, { error: "Your name, the business name and a phone number are needed." });
+    if (!b.member || !b.consent) return send(res, 400, { error: "Both tick boxes are needed before this can be sent." });
+    const rec = Object.assign({}, b, { id: "s" + Date.now().toString(36), at: new Date().toISOString(), from: "Fairfax, US" });
+    delete rec.company; delete rec.member; delete rec.consent;
+    subStore.unshift(rec);
+    return send(res, 200, { ok: true });
+  }
+
+  if (url === "/api/submit" && req.method === "GET") {
+    if (!canEdit(req)) return send(res, 401, { error: "Not signed in." });
+    return send(res, 200, { submissions: subStore });
+  }
+
+  if (url === "/api/submit" && req.method === "PUT") {
+    if (!canEdit(req)) return send(res, 401, { error: "Not signed in." });
+    const b = await readBody(req);
+    if (!b || !Array.isArray(b.submissions)) return send(res, 400, { error: "Bad request." });
+    subStore = b.submissions;
+    return send(res, 200, { ok: true, submissions: subStore.length });
   }
 
   if (url === "/api/directory" && req.method === "GET") {
