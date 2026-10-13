@@ -124,10 +124,12 @@ export async function onRequestPost({ request, env }) {
   return json({ ok: true });
 }
 
-// The waiting list is for the editor only.
+// The details are for the editor only. Everyone else gets the number waiting
+// and nothing else, so a reminder can be built on it without the password.
 export async function onRequestGet({ request, env }) {
-  if (!(await canEdit(request, env))) return json({ error: "Not signed in." }, 401);
-  return json({ submissions: await read(env) });
+  const list = await read(env);
+  if (!(await canEdit(request, env))) return json({ waiting: list.length });
+  return json({ submissions: list, waiting: list.length });
 }
 
 // Used to clear one once it has been added or turned down.

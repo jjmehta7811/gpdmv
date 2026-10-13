@@ -105,8 +105,8 @@ http.createServer(async (req, res) => {
   }
 
   if (url === "/api/submit" && req.method === "GET") {
-    if (!canEdit(req)) return send(res, 401, { error: "Not signed in." });
-    return send(res, 200, { submissions: subStore });
+    if (!canEdit(req)) return send(res, 200, { waiting: subStore.length });
+    return send(res, 200, { submissions: subStore, waiting: subStore.length });
   }
 
   if (url === "/api/submit" && req.method === "PUT") {
