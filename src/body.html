@@ -521,6 +521,16 @@
         <label for="b-hours">Hours</label>
         <input id="b-hours" name="hours" maxlength="160" placeholder="Days and times they are open">
       </div>
+      <div class="row2">
+        <div class="field">
+          <label for="b-website">Website</label>
+          <input id="b-website" name="website" maxlength="200" placeholder="Their website address">
+        </div>
+        <div class="field">
+          <label for="b-social">Instagram or Facebook</label>
+          <input id="b-social" name="social" maxlength="200" placeholder="Handle or page link">
+        </div>
+      </div>
       <div class="field">
         <label for="b-notes">Notes</label>
         <textarea id="b-notes" name="notes" rows="4" maxlength="2000" placeholder="Anything the member wrote about the business"></textarea>
@@ -1937,6 +1947,42 @@
 
   function telHref(p) { return "tel:" + String(p || "").replace(/[^0-9+]/g, ""); }
 
+  // Members write their website and their Instagram however they please —
+  // "rahvis.com", "@someone", a full link. These turn whatever arrived into
+  // something that opens, and refuse anything that isn't a plain web address.
+  function webLink(v) {
+    var s = String(v || "").trim().replace(/\s+/g, "");
+    if (!s) return null;
+    if (/^https?:\/\//i.test(s)) {
+      if (!/^https?:\/\/[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,}(\/|$|\?|#)/.test(s)) return null;
+      return { href: s, text: s.replace(/^https?:\/\/(www\.)?/i, "").replace(/\/$/, "") };
+    }
+    if (!/^[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z]{2,}(\/|$)/.test(s)) return null;
+    return { href: "https://" + s, text: s.replace(/^www\./i, "").replace(/\/$/, "") };
+  }
+
+  function socialLink(v) {
+    var s = String(v || "").trim().replace(/\s+/g, "");
+    if (!s) return null;
+    var m = s.match(/^(?:https?:\/\/)?(?:www\.)?(instagram\.com|facebook\.com|fb\.com)\/([A-Za-z0-9._\-\/]+)/i);
+    if (m) {
+      var host = m[1].toLowerCase() === "fb.com" ? "facebook.com" : m[1].toLowerCase();
+      var path = m[2].replace(/\/+$/, "");
+      return {
+        href: "https://" + host + "/" + path,
+        text: (host === "instagram.com" ? "@" : "") + path,
+        kind: host === "instagram.com" ? "Instagram" : "Facebook"
+      };
+    }
+    // Only a bare handle gets turned into a link. Anything that looks like a
+    // web address or a sentence is left alone rather than guessed at.
+    if (/\s/.test(String(v || "").trim())) return null;
+    if (/\.[A-Za-z]{2,}$/.test(s) || s.indexOf("/") > -1) return null;
+    var h = s.replace(/^@/, "");
+    if (!/^[A-Za-z0-9._]{1,30}$/.test(h)) return null;
+    return { href: "https://instagram.com/" + h, text: "@" + h, kind: "Instagram" };
+  }
+
   function bizCard(b) {
     var r = reviewLinks(b);
     var facts = "";
@@ -1947,6 +1993,22 @@
         esc(encodeURIComponent(b.address)) + '" target="_blank" rel="noopener noreferrer"><b>Where</b>' + esc(b.address) + "</a>";
     }
     if (b.hours) facts += '<span class="bz-fact"><b>Hours</b>' + esc(b.hours) + "</span>";
+    // Anything that can't be turned into a link safely is still shown, as
+    // plain text — better than quietly dropping what the member wrote.
+    var w = webLink(b.website);
+    if (w) {
+      facts += '<a class="bz-fact" href="' + esc(w.href) + '" target="_blank" rel="noopener noreferrer">' +
+        "<b>Website</b>" + esc(w.text) + "</a>";
+    } else if (b.website) {
+      facts += '<span class="bz-fact"><b>Website</b>' + esc(b.website) + "</span>";
+    }
+    var soc = socialLink(b.social);
+    if (soc) {
+      facts += '<a class="bz-fact" href="' + esc(soc.href) + '" target="_blank" rel="noopener noreferrer">' +
+        "<b>" + soc.kind + "</b>" + esc(soc.text) + "</a>";
+    } else if (b.social) {
+      facts += '<span class="bz-fact"><b>Social</b>' + esc(b.social) + "</span>";
+    }
 
     return '<li class="bz" data-id="' + esc(b.id) + '">' +
       '<button type="button" class="bz-head" aria-expanded="false">' +
@@ -1971,7 +2033,7 @@
   function dirMatches(b, q) {
     if (dirFilter && trade(b.cat) !== dirFilter) return false;
     if (!q) return true;
-    var hay = [b.name, b.type, b.person, b.address, b.notes, tradeName(b.cat)]
+    var hay = [b.name, b.type, b.person, b.address, b.notes, b.website, b.social, tradeName(b.cat)]
       .filter(Boolean).join(" ").toLowerCase();
     return hay.indexOf(q) > -1;
   }
@@ -2202,14 +2264,13 @@
       if (!s) return;
       var extra = [
         s.notes || "",
-        s.website ? "Website: " + s.website : "",
-        s.social ? "Social: " + s.social : "",
         s.offer ? "For GPDMV members: " + s.offer : "",
         s.area ? "Serves: " + s.area : ""
       ].filter(Boolean).join("\n\n");
       fillBizForm({
         id: null, name: s.name, cat: guessTrade(s), type: s.type, person: s.person,
-        phone: s.phone, email: s.email, address: s.address, hours: s.hours, notes: extra
+        phone: s.phone, email: s.email, address: s.address, hours: s.hours,
+        website: s.website, social: s.social, notes: extra
       });
       editingBizId = null;
       $("dir-save-btn").textContent = "Add business";
@@ -2242,6 +2303,8 @@
     $("b-email").value = b ? b.email || "" : "";
     $("b-address").value = b ? b.address || "" : "";
     $("b-hours").value = b ? b.hours || "" : "";
+    $("b-website").value = b ? b.website || "" : "";
+    $("b-social").value = b ? b.social || "" : "";
     $("b-notes").value = b ? b.notes || "" : "";
     editingBizId = b ? b.id : null;
     $("dir-save-btn").textContent = b ? "Save changes" : "Add business";
@@ -2355,6 +2418,8 @@
       email: $("b-email").value.trim(),
       address: $("b-address").value.trim(),
       hours: $("b-hours").value.trim(),
+      website: $("b-website").value.trim(),
+      social: $("b-social").value.trim(),
       notes: $("b-notes").value,
       added: (existing && existing.added) || todayISO()
     };
