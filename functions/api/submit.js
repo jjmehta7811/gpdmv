@@ -63,7 +63,10 @@ async function notify(env, rec) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        from: env.SUBMIT_FROM || "GPDMV website <noreply@gpdmv.com>",
+        // Resend's shared sender works with no DNS set up, but only to the
+        // address the account was opened with. Once gpdmv.com is verified,
+        // set SUBMIT_FROM to an address on it and mail comes from GPDMV.
+        from: env.SUBMIT_FROM || "GPDMV website <onboarding@resend.dev>",
         to: [env.SUBMIT_TO],
         subject: "New business listing: " + (rec.name || "unnamed"),
         text: lines.join("\n") + "\n\nReview and publish it at https://gpdmv.com/directory#manage"
