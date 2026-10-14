@@ -4,7 +4,7 @@ Every change made to the GPDMV calendar and website, newest at the bottom.
 A new version number is added each time something changes.
 
 **Live on gpdmv.com:** up to version 11.
-**Built and waiting on the `dev` branch:** versions 12 to 23, going live
+**Built and waiting on the `dev` branch:** versions 12 to 25, going live
 Saturday 17 October.
 
 ---
@@ -141,3 +141,13 @@ and both appear on the card as links. A bare handle, an @handle,
 instagram.com/name and a full link all reach the same place, and Facebook
 pages are recognised. Anything that cannot safely become a link is shown as
 plain text rather than linked or dropped.
+
+**24 — Site titled GPDMV - Gujarati Parivaar of DMV · 14 October**
+The full name carries the heading, the browser tab, the footer and the
+link previews. The line above it keeps only the Gujarati, since the
+English half was saying the same thing twice.
+
+**25 — Jobs tab hidden for now · 14 October**
+The Jobs section is built, tested and still reachable at /jobs, but the
+tab is hidden until there are real postings behind it — an empty page in
+the menu says less than no page at all. One switch brings it back.

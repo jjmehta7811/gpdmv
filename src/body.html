@@ -687,6 +687,10 @@
     return "calendar";
   })();
 
+  // The Jobs section is built and working, but hidden from the tab bar until
+  // there are real postings to show. Set this to true to bring it back.
+  var SHOW_JOBS = false;
+
   var jobs = [];
   var biz = [];
 
@@ -2464,7 +2468,7 @@
   };
 
   function applyRoute() {
-    $("tab-jobs").hidden = !API;
+    $("tab-jobs").hidden = !API || !SHOW_JOBS;
     $("tab-directory").hidden = !API;
     $("sub-cal").hidden = ROUTE !== "calendar";   // subscribing is a calendar thing
 
