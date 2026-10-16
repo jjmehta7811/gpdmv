@@ -152,6 +152,7 @@ The Jobs section is built, tested and still reachable at /jobs, but the
 tab is hidden until there are real postings behind it — an empty page in
 the menu says less than no page at all. One switch brings it back.
 
-**26 — Instagram, Threads and YouTube in the footer · 16 October**
-Links to @GPDMVOfficial on all three, with their icons, beside the
-contact line at the foot of every section.
+**26 — Social links in the footer · 16 October**
+Instagram, Threads and YouTube as @GPDMVOfficial, plus the Facebook
+page and the Facebook group — each with its icon, beside the contact
+line at the foot of every section.
