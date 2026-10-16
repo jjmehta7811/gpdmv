@@ -136,6 +136,18 @@ button{font:inherit;color:inherit;cursor:pointer}
 }
 h1{font-size:26px;letter-spacing:-.01em}
 .byline{margin:0;font-size:13.5px;color:var(--muted)}
+/* The social links sit under the byline, so they wrap onto as many rows as
+   the screen needs rather than pushing the masthead wide. */
+.social{display:flex;flex-wrap:wrap;align-items:center;gap:4px 14px;margin-top:7px}
+.social a{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--ink-2);text-decoration:none;font-weight:600;font-size:13px;
+}
+.social a:hover{color:var(--indigo)}
+.social svg{flex:none}
+@media (max-width:640px){
+  .social{gap:4px 12px;font-size:12.5px}
+}
 .join{
   display:inline-flex;align-items:center;gap:8px;flex:none;
   padding:9px 15px;border-radius:999px;text-decoration:none;
@@ -514,16 +526,8 @@ a.mini.addcal:hover{background:var(--indigo);color:var(--on-accent);border-color
 }
 .foot p{margin:0}
 .linky{background:none;border:0;padding:0;color:var(--indigo);font-weight:600;text-decoration:underline;text-underline-offset:3px;font-size:13px}
-.social{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
-.social a{
-  display:inline-flex;align-items:center;gap:6px;
-  color:var(--ink-2);text-decoration:none;font-weight:600;font-size:13px;
-}
-.social a:hover{color:var(--indigo)}
-.social svg{flex:none}
 @media (max-width:640px){
   .foot{gap:10px}
-  .social{width:100%;gap:6px 18px}
 }
 
 /* ---------- flyer ---------- */

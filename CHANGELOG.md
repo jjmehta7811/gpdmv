@@ -4,7 +4,7 @@ Every change made to the GPDMV calendar and website, newest at the bottom.
 A new version number is added each time something changes.
 
 **Live on gpdmv.com:** up to version 11.
-**Built and waiting on the `dev` branch:** versions 12 to 26, going live
+**Built and waiting on the `dev` branch:** versions 12 to 27, going live
 Saturday 17 October.
 
 ---
@@ -156,3 +156,12 @@ the menu says less than no page at all. One switch brings it back.
 Instagram, Threads and YouTube as @GPDMVOfficial, plus the Facebook
 page and the Facebook group — each with its icon, beside the contact
 line at the foot of every section.
+
+**27 — Social links moved up, and the Add-your-business link fixed · 16 October**
+Instagram, Threads, Facebook, the Facebook group and YouTube now sit
+directly under "Created by Jahnvi Mehta" at the top of the page, where
+they are seen without scrolling, and they wrap onto two tidy rows on a
+phone. gpdmv.com/directory#add also opens the form for someone who
+already has the directory open — before, the link only worked on a fresh
+load. Closing the form drops #add from the address, so the same link
+works the next time it is tapped.
