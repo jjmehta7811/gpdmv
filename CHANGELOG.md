@@ -4,7 +4,7 @@ Every change made to the GPDMV calendar and website, newest at the bottom.
 A new version number is added each time something changes.
 
 **Live on gpdmv.com:** up to version 11.
-**Built and waiting on the `dev` branch:** versions 12 to 25, going live
+**Built and waiting on the `dev` branch:** versions 12 to 26, going live
 Saturday 17 October.
 
 ---
@@ -151,3 +151,7 @@ English half was saying the same thing twice.
 The Jobs section is built, tested and still reachable at /jobs, but the
 tab is hidden until there are real postings behind it — an empty page in
 the menu says less than no page at all. One switch brings it back.
+
+**26 — Instagram, Threads and YouTube in the footer · 16 October**
+Links to @GPDMVOfficial on all three, with their icons, beside the
+contact line at the foot of every section.

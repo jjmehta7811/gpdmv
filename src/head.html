@@ -514,6 +514,17 @@ a.mini.addcal:hover{background:var(--indigo);color:var(--on-accent);border-color
 }
 .foot p{margin:0}
 .linky{background:none;border:0;padding:0;color:var(--indigo);font-weight:600;text-decoration:underline;text-underline-offset:3px;font-size:13px}
+.social{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px}
+.social a{
+  display:inline-flex;align-items:center;gap:6px;
+  color:var(--ink-2);text-decoration:none;font-weight:600;font-size:13px;
+}
+.social a:hover{color:var(--indigo)}
+.social svg{flex:none}
+@media (max-width:640px){
+  .foot{gap:10px}
+  .social{width:100%;gap:6px 18px}
+}
 
 /* ---------- flyer ---------- */
 .flyer{
