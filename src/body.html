@@ -88,8 +88,12 @@
       <div class="how" id="sub-how"></div>
 
       <details class="sub-off" id="sub-off">
-        <summary>Want it off later?</summary>
-        <div class="how" id="sub-off-how"></div>
+        <summary>Unsubscribe</summary>
+        <div class="how unsub-steps">
+          <p><span aria-hidden="true">📱</span> <b>iPhone:</b> Settings → Calendar → Accounts → GPDMV → Delete Account</p>
+          <p><span aria-hidden="true">📱</span> <b>Android:</b> <a href="https://calendar.google.com/calendar/u/0/r/settings" target="_blank" rel="noopener noreferrer">Google Calendar</a> → Settings → GPDMV → Unsubscribe</p>
+          <p class="tip">The calendar sits in your own phone, so it comes off from there — nothing is sent to us either way.</p>
+        </div>
       </details>
     </div>
   </div>
@@ -193,7 +197,7 @@
 
   <footer class="foot" id="foot">
     <p id="foot-line">GPDMV - Gujarati Parivaar of DMV — Presented by Jahnvi Mehta · To add your event, call or text <a class="tel" href="tel:+12144637811">214-463-7811</a></p>
-    <a class="unsub-link" href="#unsubscribe" id="unsub-link">How to remove the GPDMV calendar from your phone</a>
+    <a class="unsub-link" href="#unsubscribe" id="unsub-link">Unsubscribe</a>
     <span class="spacer" style="flex:1"></span>
     <button class="linky" id="manage" hidden>Manage events</button>
     <button class="linky" id="manage-jobs" hidden>Manage jobs</button>
@@ -1203,12 +1207,7 @@
         "iPhone asks <b>Subscribe to this calendar?</b> \u2014 tap <b>Subscribe</b>, then <b>Done</b>.",
         "GPDMV events now appear in your Calendar app."
       ],
-      tip: "Nothing happened? Copy the link, then go to Settings \u203a Apps \u203a Calendar \u203a Accounts \u203a Add Account \u203a Other \u203a Add Subscribed Calendar and paste it.",
-      off: [
-        "Open the <b>Calendar</b> app and tap <b>Calendars</b> at the bottom.",
-        "Tap the <b>i</b> beside <b>GPDMV</b>, then <b>Delete Calendar</b>.",
-        "Or: <b>Settings</b> \u203a <b>Apps</b> \u203a <b>Calendar</b> \u203a <b>Accounts</b> \u203a <b>GPDMV</b> \u203a <b>Delete Account</b>."
-      ]
+      tip: "Nothing happened? Copy the link, then go to Settings \u203a Apps \u203a Calendar \u203a Accounts \u203a Add Account \u203a Other \u203a Add Subscribed Calendar and paste it."
     },
     android: {
       steps: [
@@ -1217,12 +1216,7 @@
         "Left side: next to <b>Other calendars</b> tap <b>+</b> \u203a <b>From URL</b>, paste, then <b>Add calendar</b>.",
         "The events appear in your Google Calendar app within a few minutes."
       ],
-      tip: "It has to be done once in a browser, but after that your phone keeps it up to date by itself.",
-      off: [
-        "Open <a href=\"https://calendar.google.com/calendar/u/0/r/settings\" target=\"_blank\" rel=\"noopener noreferrer\"><b>Google Calendar settings</b></a> in a browser.",
-        "On the left, under <b>Settings for other calendars</b>, tap <b>GPDMV</b>.",
-        "Tap <b>Unsubscribe</b>, then <b>Remove calendar</b>. It disappears from your phone too."
-      ]
+      tip: "It has to be done once in a browser, but after that your phone keeps it up to date by itself."
     },
     desktop: {
       steps: [
@@ -1230,12 +1224,7 @@
         "<b>Outlook:</b> Add calendar \u203a Subscribe from web \u203a paste the link.",
         "<b>Apple Calendar:</b> File \u203a New Calendar Subscription \u203a paste the link."
       ],
-      tip: "Use Copy link above, then paste it wherever your calendar asks for a web address.",
-      off: [
-        "<b>Google Calendar:</b> hover <b>GPDMV</b> under <b>Other calendars</b>, click the <b>⋮</b> and choose <b>Unsubscribe</b>.",
-        "<b>Outlook:</b> right-click the GPDMV calendar in the list and choose <b>Remove</b>.",
-        "<b>Apple Calendar:</b> right-click GPDMV in the sidebar and choose <b>Delete</b>."
-      ]
+      tip: "Use Copy link above, then paste it wherever your calendar asks for a web address."
     }
   };
 
@@ -1257,10 +1246,6 @@
     }
     $("sub-how").innerHTML = "<ol><li>" + h.steps.join("</li><li>") + "</li></ol>" +
       '<p class="tip">' + h.tip + "</p>";
-    // A subscribed calendar lives in the phone, not on the site, so no button
-    // here can remove it — the steps follow whichever device tab is open.
-    $("sub-off-how").innerHTML = "<ol><li>" + (h.off || []).join("</li><li>") + "</li></ol>" +
-      '<p class="tip">Nothing is sent to us either way — the calendar sits in your own phone, so it comes off from there.</p>';
   }
 
   function syncSubLink() {

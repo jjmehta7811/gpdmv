@@ -166,11 +166,12 @@ already has the directory open — before, the link only worked on a fresh
 load. Closing the form drops #add from the address, so the same link
 works the next time it is tapped.
 
-**28 — How to turn the calendar off · 16 October**
-A "Want it off later?" section inside the Subscribe panel, with the steps
-for whichever device the member is holding — and on Android a direct link
-into Google Calendar settings. A small line at the foot of the calendar,
-"How to remove the GPDMV calendar from your phone", opens straight onto
-those steps, and gpdmv.com/#unsubscribe does the same, so the link can be
-given out on its own. No site can remove a subscribed calendar by itself:
-it lives in the phone, so it comes off from there.
+**28 — Unsubscribe · 16 October**
+An **Unsubscribe** line at the foot of the calendar, and the same at
+gpdmv.com/#unsubscribe, so the link can be given out on its own. Either
+opens the Subscribe panel on the two steps:
+iPhone — Settings → Calendar → Accounts → GPDMV → Delete Account;
+Android — Google Calendar (linked) → Settings → GPDMV → Unsubscribe.
+The same section sits inside the panel for anyone already there. No site
+can remove a subscribed calendar by itself: it lives in the phone, so it
+comes off from there.
