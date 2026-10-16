@@ -86,6 +86,11 @@
         <button type="button" class="tab" data-dev="desktop" role="tab">Computer</button>
       </div>
       <div class="how" id="sub-how"></div>
+
+      <details class="sub-off" id="sub-off">
+        <summary>Want it off later?</summary>
+        <div class="how" id="sub-off-how"></div>
+      </details>
     </div>
   </div>
 
@@ -188,6 +193,7 @@
 
   <footer class="foot" id="foot">
     <p id="foot-line">GPDMV - Gujarati Parivaar of DMV — Presented by Jahnvi Mehta · To add your event, call or text <a class="tel" href="tel:+12144637811">214-463-7811</a></p>
+    <a class="unsub-link" href="#unsubscribe" id="unsub-link">How to remove the GPDMV calendar from your phone</a>
     <span class="spacer" style="flex:1"></span>
     <button class="linky" id="manage" hidden>Manage events</button>
     <button class="linky" id="manage-jobs" hidden>Manage jobs</button>
@@ -1197,7 +1203,12 @@
         "iPhone asks <b>Subscribe to this calendar?</b> \u2014 tap <b>Subscribe</b>, then <b>Done</b>.",
         "GPDMV events now appear in your Calendar app."
       ],
-      tip: "Nothing happened? Copy the link, then go to Settings \u203a Apps \u203a Calendar \u203a Accounts \u203a Add Account \u203a Other \u203a Add Subscribed Calendar and paste it."
+      tip: "Nothing happened? Copy the link, then go to Settings \u203a Apps \u203a Calendar \u203a Accounts \u203a Add Account \u203a Other \u203a Add Subscribed Calendar and paste it.",
+      off: [
+        "Open the <b>Calendar</b> app and tap <b>Calendars</b> at the bottom.",
+        "Tap the <b>i</b> beside <b>GPDMV</b>, then <b>Delete Calendar</b>.",
+        "Or: <b>Settings</b> \u203a <b>Apps</b> \u203a <b>Calendar</b> \u203a <b>Accounts</b> \u203a <b>GPDMV</b> \u203a <b>Delete Account</b>."
+      ]
     },
     android: {
       steps: [
@@ -1206,7 +1217,12 @@
         "Left side: next to <b>Other calendars</b> tap <b>+</b> \u203a <b>From URL</b>, paste, then <b>Add calendar</b>.",
         "The events appear in your Google Calendar app within a few minutes."
       ],
-      tip: "It has to be done once in a browser, but after that your phone keeps it up to date by itself."
+      tip: "It has to be done once in a browser, but after that your phone keeps it up to date by itself.",
+      off: [
+        "Open <a href=\"https://calendar.google.com/calendar/u/0/r/settings\" target=\"_blank\" rel=\"noopener noreferrer\"><b>Google Calendar settings</b></a> in a browser.",
+        "On the left, under <b>Settings for other calendars</b>, tap <b>GPDMV</b>.",
+        "Tap <b>Unsubscribe</b>, then <b>Remove calendar</b>. It disappears from your phone too."
+      ]
     },
     desktop: {
       steps: [
@@ -1214,7 +1230,12 @@
         "<b>Outlook:</b> Add calendar \u203a Subscribe from web \u203a paste the link.",
         "<b>Apple Calendar:</b> File \u203a New Calendar Subscription \u203a paste the link."
       ],
-      tip: "Use Copy link above, then paste it wherever your calendar asks for a web address."
+      tip: "Use Copy link above, then paste it wherever your calendar asks for a web address.",
+      off: [
+        "<b>Google Calendar:</b> hover <b>GPDMV</b> under <b>Other calendars</b>, click the <b>⋮</b> and choose <b>Unsubscribe</b>.",
+        "<b>Outlook:</b> right-click the GPDMV calendar in the list and choose <b>Remove</b>.",
+        "<b>Apple Calendar:</b> right-click GPDMV in the sidebar and choose <b>Delete</b>."
+      ]
     }
   };
 
@@ -1236,6 +1257,10 @@
     }
     $("sub-how").innerHTML = "<ol><li>" + h.steps.join("</li><li>") + "</li></ol>" +
       '<p class="tip">' + h.tip + "</p>";
+    // A subscribed calendar lives in the phone, not on the site, so no button
+    // here can remove it — the steps follow whichever device tab is open.
+    $("sub-off-how").innerHTML = "<ol><li>" + (h.off || []).join("</li><li>") + "</li></ol>" +
+      '<p class="tip">Nothing is sent to us either way — the calendar sits in your own phone, so it comes off from there.</p>';
   }
 
   function syncSubLink() {
@@ -1244,7 +1269,7 @@
     $("sub-link").setAttribute("data-web", u.web);
   }
 
-  function openSub() {
+  function openSub(showOff) {
     var sel = $("sub-cat");
     if (!sel.options.length) {
       var opt = document.createElement("option");
@@ -1261,12 +1286,33 @@
     $("sub-status").textContent = "";
     $("sub-status").className = "status";
     $("sub-drawer").hidden = false;
+    // The small footer link (and gpdmv.com/#unsubscribe) lands straight on
+    // the removal steps instead of making anyone hunt for them.
+    $("sub-off").open = showOff === true;
+    if (showOff === true) {
+      try { $("sub-off").scrollIntoView({ block: "nearest" }); } catch (e) { /* older browsers */ }
+    }
   }
 
-  $("sub-cal").addEventListener("click", openSub);
-  $("sub-close").addEventListener("click", function () { $("sub-drawer").hidden = true; });
+  function closeSub() {
+    $("sub-drawer").hidden = true;
+    if ((window.location.hash || "").toLowerCase() === "#unsubscribe" &&
+        window.history && window.history.replaceState) {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }
+
+  $("sub-cal").addEventListener("click", function () { openSub(false); });
+  $("sub-close").addEventListener("click", closeSub);
   $("sub-drawer").addEventListener("click", function (e) {
-    if (e.target === $("sub-drawer")) $("sub-drawer").hidden = true;
+    if (e.target === $("sub-drawer")) closeSub();
+  });
+  $("unsub-link").addEventListener("click", function (e) {
+    e.preventDefault();
+    if (window.history && window.history.replaceState) {
+      window.history.replaceState(null, "", window.location.pathname + "#unsubscribe");
+    }
+    openSub(true);
   });
   $("sub-cat").addEventListener("change", syncSubLink);
   $("sub-tabs").addEventListener("click", function (e) {
@@ -1464,6 +1510,13 @@
     } else {
       $("add-drawer").hidden = true;
     }
+
+    // gpdmv.com/#unsubscribe opens the panel on the removal steps, so the
+    // link can be given out on its own.
+    if (ROUTE === "calendar" &&
+        (window.location.hash || "").toLowerCase() === "#unsubscribe") {
+      if ($("sub-drawer").hidden) openSub(true);
+    }
   }
   syncEditorAccess();
   window.addEventListener("hashchange", syncEditorAccess);
@@ -1514,7 +1567,7 @@
     if (e.key !== "Escape") return;
     $("drawer").hidden = true;
     $("save-drawer").hidden = true;
-    $("sub-drawer").hidden = true;
+    closeSub();
     $("jobs-drawer").hidden = true;
     $("dir-drawer").hidden = true;
     closeAdd();
@@ -2510,6 +2563,7 @@
     $("tab-jobs").hidden = !API || !SHOW_JOBS;
     $("tab-directory").hidden = !API;
     $("sub-cal").hidden = ROUTE !== "calendar";   // subscribing is a calendar thing
+    $("unsub-link").hidden = ROUTE !== "calendar";
 
     Object.keys(SECTIONS).forEach(function (k) {
       var s = SECTIONS[k];

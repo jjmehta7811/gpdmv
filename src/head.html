@@ -190,6 +190,16 @@ h1{font-size:26px;letter-spacing:-.01em}
   font:600 12.5px/1.6 var(--body);
 }
 .how .tip{margin:12px 0 0;font-size:13.5px;color:var(--muted)}
+.sub-off{margin-top:14px;border-top:1px solid var(--line);padding-top:10px}
+.sub-off summary{
+  cursor:pointer;font-size:13.5px;font-weight:600;color:var(--indigo);
+  list-style:none;padding:2px 0;
+}
+.sub-off summary::-webkit-details-marker{display:none}
+.sub-off summary::before{content:"\203a";display:inline-block;margin-right:7px;transition:transform .15s}
+.sub-off[open] summary::before{transform:rotate(90deg)}
+.sub-off .how{padding-top:8px}
+.sub-off .how ol{font-size:14px}
 
 .sub-btn{
   display:inline-flex;align-items:center;gap:8px;flex:none;cursor:pointer;
@@ -526,6 +536,11 @@ a.mini.addcal:hover{background:var(--indigo);color:var(--on-accent);border-color
 }
 .foot p{margin:0}
 .linky{background:none;border:0;padding:0;color:var(--indigo);font-weight:600;text-decoration:underline;text-underline-offset:3px;font-size:13px}
+.unsub-link{
+  font-size:12px;color:var(--muted);text-decoration:underline;
+  text-underline-offset:3px;text-decoration-color:var(--line-strong);
+}
+.unsub-link:hover{color:var(--indigo)}
 @media (max-width:640px){
   .foot{gap:10px}
 }
