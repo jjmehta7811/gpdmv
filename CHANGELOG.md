@@ -4,7 +4,7 @@ Every change made to the GPDMV calendar and website, newest at the bottom.
 A new version number is added each time something changes.
 
 **Live on gpdmv.com:** up to version 11.
-**Built and waiting on the `dev` branch:** versions 12 to 28, going live
+**Built and waiting on the `dev` branch:** versions 12 to 29, going live
 Saturday 17 October.
 
 ---
@@ -175,3 +175,13 @@ Android — Google Calendar (linked) → Settings → GPDMV → Unsubscribe.
 The same section sits inside the panel for anyone already there. No site
 can remove a subscribed calendar by itself: it lives in the phone, so it
 comes off from there.
+
+**29 — GPDMV Discount · 17 October**
+A "GPDMV Discount" entry at the top of the trade list on the directory,
+showing every business that has written something for members. The offer
+is its own field now rather than a line inside the notes: it carries over
+straight from a member's form, shows as a tag beside the business name
+and in a marked box when the card is opened, and can be added or edited
+in Manage directory. Sunnybrook Tavern's community discount, already in
+its notes, moved across; Paisano's Pizza says a 40-50% discount is being
+arranged with corporate, so it waits until that is confirmed.

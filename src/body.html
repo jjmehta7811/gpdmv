@@ -564,6 +564,10 @@
         </div>
       </div>
       <div class="field">
+        <label for="b-offer">Something special for GPDMV members <span class="hint">optional — listed under GPDMV Discount</span></label>
+        <input id="b-offer" name="offer" maxlength="200" placeholder="10% off for GPDMV members">
+      </div>
+      <div class="field">
         <label for="b-notes">Notes</label>
         <textarea id="b-notes" name="notes" rows="4" maxlength="2000" placeholder="Anything the member wrote about the business"></textarea>
       </div>
@@ -2001,6 +2005,11 @@
   };
   var TRADE_KEYS = Object.keys(TRADES);
 
+  // "GPDMV Discount" is not a trade — it is every business that has written
+  // something for members, listed beside the trades so it is easy to find.
+  var OFFER_KEY = "offer";
+  function hasOffer(b) { return !!String(b && b.offer || "").trim(); }
+
   function trade(k) { return TRADES[k] ? k : "other"; }
   function tradeName(k) { return TRADES[trade(k)][0]; }
   function tradeShort(k) { return TRADES[trade(k)][1]; }
@@ -2084,11 +2093,13 @@
 
     return '<li class="bz" data-id="' + esc(b.id) + '">' +
       '<button type="button" class="bz-head" aria-expanded="false">' +
-        '<span class="bz-name">' + esc(b.name) + "</span>" +
+        '<span class="bz-name">' + esc(b.name) +
+          (hasOffer(b) ? ' <span class="bz-tag">GPDMV discount</span>' : "") + "</span>" +
         (b.type ? '<span class="bz-type">' + esc(b.type) + "</span>" : "") +
         '<span class="bz-chev" aria-hidden="true">›</span>' +
       "</button>" +
       '<div class="bz-body" hidden>' +
+        (hasOffer(b) ? '<p class="bz-offer"><b>For GPDMV members</b> ' + esc(b.offer) + "</p>" : "") +
         (b.person ? '<p class="bz-person">Run by ' + esc(b.person) + "</p>" : "") +
         (facts ? '<div class="bz-facts">' + facts + "</div>" : "") +
         (b.notes ? '<p class="bz-notes">' + esc(b.notes) + "</p>" : "") +
@@ -2103,9 +2114,13 @@
   var dirFilter = "";   // the trade chip in use, "" for all
 
   function dirMatches(b, q) {
-    if (dirFilter && trade(b.cat) !== dirFilter) return false;
+    if (dirFilter === OFFER_KEY) {
+      if (!hasOffer(b)) return false;
+    } else if (dirFilter && trade(b.cat) !== dirFilter) {
+      return false;
+    }
     if (!q) return true;
-    var hay = [b.name, b.type, b.person, b.address, b.notes, b.website, b.social, tradeName(b.cat)]
+    var hay = [b.name, b.type, b.person, b.address, b.notes, b.offer, b.website, b.social, tradeName(b.cat)]
       .filter(Boolean).join(" ").toLowerCase();
     return hay.indexOf(q) > -1;
   }
@@ -2118,9 +2133,16 @@
   function renderDirChips() {
     var counts = {};
     biz.forEach(function (b) { var k = trade(b.cat); counts[k] = (counts[k] || 0) + 1; });
+    var offers = biz.filter(hasOffer).length;
     var html = '<button type="button" class="tchip' + (dirFilter ? "" : " on") + '" data-trade="">' +
       '<span class="t-full">All trades</span><span class="t-short">All</span>' +
       '<span class="n">' + biz.length + "</span></button>";
+    if (offers) {
+      html += '<button type="button" class="tchip offer' + (dirFilter === OFFER_KEY ? " on" : "") +
+        '" data-trade="' + OFFER_KEY + '">' +
+        '<span class="t-full">GPDMV Discount</span><span class="t-short">Discount</span>' +
+        '<span class="n">' + offers + "</span></button>";
+    }
     TRADE_KEYS.forEach(function (k) {
       if (!counts[k]) return;
       html += '<button type="button" class="tchip' + (dirFilter === k ? " on" : "") + '" data-trade="' + k + '">' +
@@ -2345,13 +2367,12 @@
       if (!s) return;
       var extra = [
         s.notes || "",
-        s.offer ? "For GPDMV members: " + s.offer : "",
         s.area ? "Serves: " + s.area : ""
       ].filter(Boolean).join("\n\n");
       fillBizForm({
         id: null, name: s.name, cat: guessTrade(s), type: s.type, person: s.person,
         phone: s.phone, email: s.email, address: s.address, hours: s.hours,
-        website: s.website, social: s.social, notes: extra
+        website: s.website, social: s.social, offer: s.offer || "", notes: extra
       });
       editingBizId = null;
       $("dir-save-btn").textContent = "Add business";
@@ -2386,6 +2407,7 @@
     $("b-hours").value = b ? b.hours || "" : "";
     $("b-website").value = b ? b.website || "" : "";
     $("b-social").value = b ? b.social || "" : "";
+    $("b-offer").value = b ? b.offer || "" : "";
     $("b-notes").value = b ? b.notes || "" : "";
     editingBizId = b ? b.id : null;
     $("dir-save-btn").textContent = b ? "Save changes" : "Add business";
@@ -2501,6 +2523,7 @@
       hours: $("b-hours").value.trim(),
       website: $("b-website").value.trim(),
       social: $("b-social").value.trim(),
+      offer: $("b-offer").value.trim(),
       notes: $("b-notes").value,
       added: (existing && existing.added) || todayISO()
     };
