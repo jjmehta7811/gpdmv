@@ -5,7 +5,7 @@ A new version number is added each time something changes.
 
 **Live on gpdmv.com:** up to version 29 (versions 12–29 went live on
 Saturday 17 October).
-**Built and waiting on the `dev` branch:** version 30.
+**Built and waiting on the `dev` branch:** versions 30 and 31.
 
 ---
 
@@ -189,3 +189,6 @@ arranged with corporate, so it waits until that is confirmed.
 **30 — Instagram and Threads point at the new handles · 18 October**
 instagram.com/gpdmv and threads.com/@gpdmv, in place of the GPDMVOfficial
 ones. Facebook, the Facebook group and YouTube are unchanged.
+
+**31 — Facebook link reads FB Page · 18 October**
+It sits beside FB Group, so the pair now reads as the pair it is.
