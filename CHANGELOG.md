@@ -5,7 +5,7 @@ A new version number is added each time something changes.
 
 **Live on gpdmv.com:** up to version 29 (versions 12–29 went live on
 Saturday 17 October).
-**Built and waiting on the `dev` branch:** versions 30 to 32.
+**Built and waiting on the `dev` branch:** versions 30 to 33.
 
 ---
 
@@ -199,3 +199,7 @@ a laptop and three on a phone, with no overflow at 360px.
 “Created by Jahnvi Mehta · Call or Text 214-463-7811”, in place of the
 longer “To add your event, call or text”. The footer line still says what
 each section is for.
+
+**33 — New WhatsApp invite link · 18 October**
+“Join us on WhatsApp” points at chat.whatsapp.com/CsfdAysASFLBl2RUbyr7hX,
+replacing the older invite.
