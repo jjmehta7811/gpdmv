@@ -190,5 +190,7 @@ arranged with corporate, so it waits until that is confirmed.
 instagram.com/gpdmv and threads.com/@gpdmv, in place of the GPDMVOfficial
 ones. Facebook, the Facebook group and YouTube are unchanged.
 
-**31 — Facebook link reads FB Page · 18 October**
-It sits beside FB Group, so the pair now reads as the pair it is.
+**31 — Facebook links named in full · 18 October**
+Facebook Page and Facebook Group, rather than FB. The row reads
+Instagram · Threads · Facebook Page · Facebook Group · YouTube, one line on
+a laptop and three on a phone, with no overflow at 360px.
