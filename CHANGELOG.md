@@ -3,9 +3,8 @@
 Every change made to the GPDMV calendar and website, newest at the bottom.
 A new version number is added each time something changes.
 
-**Live on gpdmv.com:** up to version 29 (versions 12–29 went live on
-Saturday 17 October).
-**Built and waiting on the `dev` branch:** versions 30 to 33.
+**Live on gpdmv.com:** up to version 33.
+**Built and waiting on the `dev` branch:** nothing — `dev` and `main` match.
 
 ---
 
