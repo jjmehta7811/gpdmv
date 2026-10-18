@@ -3,9 +3,9 @@
 Every change made to the GPDMV calendar and website, newest at the bottom.
 A new version number is added each time something changes.
 
-**Live on gpdmv.com:** up to version 11.
-**Built and waiting on the `dev` branch:** versions 12 to 29, going live
-Saturday 17 October.
+**Live on gpdmv.com:** up to version 29 (versions 12–29 went live on
+Saturday 17 October).
+**Built and waiting on the `dev` branch:** version 30.
 
 ---
 
@@ -185,3 +185,7 @@ and in a marked box when the card is opened, and can be added or edited
 in Manage directory. Sunnybrook Tavern's community discount, already in
 its notes, moved across; Paisano's Pizza says a 40-50% discount is being
 arranged with corporate, so it waits until that is confirmed.
+
+**30 — Instagram and Threads point at the new handles · 18 October**
+instagram.com/gpdmv and threads.com/@gpdmv, in place of the GPDMVOfficial
+ones. Facebook, the Facebook group and YouTube are unchanged.
