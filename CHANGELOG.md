@@ -5,7 +5,7 @@ A new version number is added each time something changes.
 
 **Live on gpdmv.com:** up to version 29 (versions 12–29 went live on
 Saturday 17 October).
-**Built and waiting on the `dev` branch:** versions 30 and 31.
+**Built and waiting on the `dev` branch:** versions 30 to 32.
 
 ---
 
@@ -194,3 +194,8 @@ ones. Facebook, the Facebook group and YouTube are unchanged.
 Facebook Page and Facebook Group, rather than FB. The row reads
 Instagram · Threads · Facebook Page · Facebook Group · YouTube, one line on
 a laptop and three on a phone, with no overflow at 360px.
+
+**32 — Shorter line under the title · 18 October**
+“Created by Jahnvi Mehta · Call or Text 214-463-7811”, in place of the
+longer “To add your event, call or text”. The footer line still says what
+each section is for.
