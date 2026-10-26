@@ -4,7 +4,7 @@ Every change made to the GPDMV calendar and website, newest at the bottom.
 A new version number is added each time something changes.
 
 **Live on gpdmv.com:** up to version 33.
-**Built and waiting on the `dev` branch:** nothing — `dev` and `main` match.
+**Built and waiting on the `dev` branch:** version 34.
 
 ---
 
@@ -202,3 +202,10 @@ each section is for.
 **33 — New WhatsApp invite link · 18 October**
 “Join us on WhatsApp” points at chat.whatsapp.com/CsfdAysASFLBl2RUbyr7hX,
 replacing the older invite.
+
+**34 — Share an event · 26 October**
+A Share button on every event. On a phone it opens the usual share sheet
+— WhatsApp, Messages, email — with the event's name, date, time, venue
+and a link straight to it. On a laptop the same message is copied, ready
+to paste. Each event now has its own address (gpdmv.com/calendar?e=…),
+so whoever opens it lands on that event rather than on today.

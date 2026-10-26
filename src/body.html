@@ -894,6 +894,11 @@
               '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" ' +
               'd="M7 3v3M17 3v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1zM12 12v5M9.5 14.5h5"/>' +
             "</svg>Add to my calendar</a>" +
+          '<button type="button" class="mini share" data-share="' + esc(ev.id) + '">' +
+            '<svg viewBox="0 0 24 24" width="13" height="13" aria-hidden="true" focusable="false">' +
+              '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
+              'd="M18 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 14.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM18 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM8.2 11.2l7.6-3.9M8.2 12.8l7.6 3.9"/>' +
+            "</svg>Share</button>" +
           '<button type="button" class="mini" data-copy="' + esc(ev.id) + '">Copy details</button>' +
         "</div>" +
         '<dl class="facts">' + facts + "</dl>" +
@@ -971,7 +976,63 @@
     }
   });
 
+  /* ---------- sharing one event ---------- */
+  // Every event has its own address, so whoever opens the shared link lands on
+  // that event rather than on whatever today happens to be.
+  function eventUrl(ev) {
+    var base = window.location.origin + (ROUTE === "calendar" ? window.location.pathname : "/calendar");
+    return base.replace(/\/$/, "") + "?e=" + encodeURIComponent(ev.id);
+  }
+
+  function shareText(ev) {
+    var lines = [ev.title, longDate(ev.date) + (ev.time ? " · " + ev.time : "")];
+    if (ev.venue) lines.push(ev.venue);
+    if (ev.address) lines.push(ev.address);
+    lines.push("", eventUrl(ev));
+    return lines.join("\n");
+  }
+
+  function shareEvent(ev, btn) {
+    var text = shareText(ev);
+    function copied(ok) {
+      btn.textContent = ok ? "Link copied" : "Copy failed";
+      setTimeout(function () { renderDay(); }, 1600);
+    }
+    // On a phone this opens WhatsApp, Messages and the rest; on a laptop
+    // there is usually no share sheet, so the message goes to the clipboard.
+    if (navigator.share) {
+      navigator.share({ title: ev.title, text: text }).catch(function () { /* dismissed */ });
+      return;
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { copied(true); }, function () { copied(false); });
+      return;
+    }
+    copied(false);
+  }
+
+  // /calendar?e=<id> opens that event on arrival.
+  function openSharedEvent() {
+    var m = (window.location.search || "").match(/[?&]e=([^&]+)/);
+    if (!m) return;
+    var id = decodeURIComponent(m[1]);
+    var ev = events.filter(function (x) { return x.id === id; })[0];
+    if (!ev) return;
+    var d = parseISO(ev.date);
+    view = { y: d.getFullYear(), m: d.getMonth() };
+    selected = ev.date;
+    openId = ev.id;
+    renderAll();
+    if ($("day-events")) $("day-events").scrollIntoView({ block: "nearest" });
+  }
+
   $("day-events").addEventListener("click", function (e) {
+    var sh = e.target.closest("[data-share]");
+    if (sh) {
+      var sev = events.filter(function (x) { return x.id === sh.getAttribute("data-share"); })[0];
+      if (sev) shareEvent(sev, sh);
+      return;
+    }
     var head = e.target.closest(".ev-head[data-ev]");
     if (head) {
       var id = head.getAttribute("data-ev");
@@ -2637,6 +2698,7 @@
       AUDIT = data.audit || [];
       events.forEach(function (e) { if (!e.flyer && pool[e.id]) e.flyer = pool[e.id]; });
       renderAll();
+      openSharedEvent();
       renderRetag();
       if ($("boot-note")) $("boot-note").hidden = true;
     }).catch(function () {
