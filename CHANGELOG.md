@@ -3,8 +3,8 @@
 Every change made to the GPDMV calendar and website, newest at the bottom.
 A new version number is added each time something changes.
 
-**Live on gpdmv.com:** up to version 33.
-**Built and waiting on the `dev` branch:** version 34.
+**Live on gpdmv.com:** up to version 34.
+**Built and waiting on the `dev` branch:** version 35.
 
 ---
 
@@ -209,3 +209,8 @@ A Share button on every event. On a phone it opens the usual share sheet
 and a link straight to it. On a laptop the same message is copied, ready
 to paste. Each event now has its own address (gpdmv.com/calendar?e=…),
 so whoever opens it lands on that event rather than on today.
+
+**35 — Share card redrawn · 27 October**
+The picture WhatsApp shows when the link is shared still said “GPDMV
+Event Calendar”. It now reads GPDMV / Gujarati Parivaar of DMV, mentions
+the business directory, and lists the current categories.
