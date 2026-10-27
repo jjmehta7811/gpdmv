@@ -213,4 +213,7 @@ so whoever opens it lands on that event rather than on today.
 **35 — Share card redrawn · 27 October**
 The picture WhatsApp shows when the link is shared still said “GPDMV
 Event Calendar”. It now reads GPDMV / Gujarati Parivaar of DMV, mentions
-the business directory, and lists the current categories.
+the business directory, and lists the current categories. It is served
+under a new name, og-v2.png, because WhatsApp and the rest cache a
+preview picture by its address and would otherwise keep showing the old
+one for days.

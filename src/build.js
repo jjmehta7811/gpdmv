@@ -137,15 +137,15 @@ if (WEB) {
     '<meta property="og:type" content="website">\n' +
     '<meta property="og:url" content="https://gpdmv.com/">\n' +
     '<meta property="og:site_name" content="GPDMV - Gujarati Parivaar of DMV">\n' +
-    '<meta property="og:image" content="https://gpdmv.com/og.png">\n' +
+    '<meta property="og:image" content="https://gpdmv.com/og-v2.png">\n' +
     '<meta property="og:image:width" content="1200">\n' +
     '<meta property="og:image:height" content="630">\n' +
     '<meta property="og:image:alt" content="GPDMV - Gujarati Parivaar of DMV \u2014 every community event in one place">\n' +
     '<meta name="twitter:card" content="summary_large_image">\n' +
     '<meta name="twitter:title" content="GPDMV - Gujarati Parivaar of DMV">\n' +
     '<meta name="twitter:description" content="Every GPDMV community event in one place.">\n' +
-    '<meta name="twitter:image" content="https://gpdmv.com/og.png">\n' +
-    '<link rel="icon" href="/og.png">\n' +
+    '<meta name="twitter:image" content="https://gpdmv.com/og-v2.png">\n' +
+    '<link rel="icon" href="/og-v2.png">\n' +
     head +
     "</head>\n<body>\n" +
     api +
