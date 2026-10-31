@@ -3,8 +3,8 @@
 Every change made to the GPDMV calendar and website, newest at the bottom.
 A new version number is added each time something changes.
 
-**Live on gpdmv.com:** up to version 34.
-**Built and waiting on the `dev` branch:** version 35.
+**Live on gpdmv.com:** up to version 35.
+**Built and waiting on the `dev` branch:** version 36.
 
 ---
 
@@ -217,3 +217,10 @@ the business directory, and lists the current categories. It is served
 under a new name, og-v2.png, because WhatsApp and the rest cache a
 preview picture by its address and would otherwise keep showing the old
 one for days.
+
+**36 — Share a business · 31 October**
+The Share button the calendar got now sits on every business too, beside
+the review links. It sends the name, trade, who runs it, phone, offer,
+website and Instagram, and a link that opens that business:
+gpdmv.com/directory?b=… — so a recommendation in the group arrives as
+something tappable rather than a screenshot.

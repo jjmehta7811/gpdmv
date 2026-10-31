@@ -2167,6 +2167,11 @@
         '<div class="bz-reviews">' +
           '<a class="btn quiet" href="' + esc(r.google) + '" target="_blank" rel="noopener noreferrer">Reviews on Google</a>' +
           '<a class="btn quiet" href="' + esc(r.yelp) + '" target="_blank" rel="noopener noreferrer">Reviews on Yelp</a>' +
+          '<button type="button" class="btn share-biz" data-bshare="' + esc(b.id) + '">' +
+            '<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false">' +
+              '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' +
+              'd="M18 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM6 14.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM18 21a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5zM8.2 11.2l7.6-3.9M8.2 12.8l7.6 3.9"/>' +
+            "</svg>Share</button>" +
         "</div>" +
       "</div>" +
     "</li>";
@@ -2263,7 +2268,70 @@
     renderDirectory();
   });
 
+  /* ---------- sharing one business ---------- */
+  function bizUrl(b) {
+    var base = window.location.origin + (ROUTE === "directory" ? window.location.pathname : "/directory");
+    return base.replace(/\/$/, "") + "?b=" + encodeURIComponent(b.id);
+  }
+
+  function bizShareText(b) {
+    var lines = [b.name];
+    if (b.type) lines.push(b.type);
+    if (b.person) lines.push("Run by " + b.person);
+    if (b.phone) lines.push("☎ " + b.phone);
+    if (hasOffer(b)) lines.push("For GPDMV members: " + b.offer);
+    var w = webLink(b.website);
+    if (w) lines.push(w.href);
+    var s = socialLink(b.social);
+    if (s) lines.push(s.href);
+    if (b.address) lines.push(b.address);
+    lines.push("", "From the GPDMV community directory:", bizUrl(b));
+    return lines.join("\n");
+  }
+
+  function shareBiz(b, btn) {
+    var text = bizShareText(b);
+    if (navigator.share) {
+      navigator.share({ title: b.name, text: text }).catch(function () { /* dismissed */ });
+      return;
+    }
+    function done(ok) {
+      var was = btn.innerHTML;
+      btn.textContent = ok ? "Link copied" : "Copy failed";
+      setTimeout(function () { btn.innerHTML = was; }, 1600);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { done(false); });
+      return;
+    }
+    done(false);
+  }
+
+  // /directory?b=<id> opens that business on arrival, whatever the filters.
+  function openSharedBiz() {
+    var m = (window.location.search || "").match(/[?&]b=([^&]+)/);
+    if (!m) return;
+    var id = decodeURIComponent(m[1]);
+    var b = biz.filter(function (x) { return x.id === id; })[0];
+    if (!b) return;
+    dirFilter = "";
+    $("dir-q").value = b.name;
+    renderDirChips();
+    renderDirectory();
+    var card = $("dir-body").querySelector('.bz[data-id="' + id.replace(/"/g, '\\"') + '"]');
+    if (!card) return;
+    card.querySelector(".bz-head").setAttribute("aria-expanded", "true");
+    card.querySelector(".bz-body").hidden = false;
+    card.scrollIntoView({ block: "center" });
+  }
+
   $("dir-body").addEventListener("click", function (e) {
+    var sh = e.target.closest("[data-bshare]");
+    if (sh) {
+      var sb = biz.filter(function (x) { return x.id === sh.getAttribute("data-bshare"); })[0];
+      if (sb) shareBiz(sb, sh);
+      return;
+    }
     var head = e.target.closest(".bz-head");
     if (!head) return;
     var open = head.getAttribute("aria-expanded") === "true";
@@ -2675,6 +2743,7 @@
         CAN_EDIT = !!data.canEdit;
         renderDirChips();
         renderDirectory();
+        openSharedBiz();
         if ($("boot-note")) $("boot-note").hidden = true;
       })
       .catch(function () {
